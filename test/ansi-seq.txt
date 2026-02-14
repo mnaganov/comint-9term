@@ -1,0 +1,84 @@
+=== ANSI Escape Sequence Test Suite ===
+
+--- Test 1: Newline (\n) ---
+Line1
+Line2
+
+--- Test 2: Tab (\t) ---
+Col1    Col2    Col3
+
+--- Test 3: Backspace (\b) ---
+Result: ABCXYZ (from ABCDEF with 3 backspaces then XYZ)
+
+--- Test 4: Carriage Return (\r) ---
+Result: New (from 'OriginalText' then \r then 'New')
+
+--- Test 5: Cursor Up (CSI n A) ---
+Before: Bottom, Middle, Top
+After cursor up 2 and overwrite:
+Bottom
+REPLACED
+Top
+
+--- Test 6: Cursor Down (CSI n B) ---
+Line1 then cursor down skips a line:
+Line1
+
+Line3
+
+--- Test 7: Cursor Forward (CSI n C) ---
+Start then 10 spaces forward then End:
+Start          End
+
+--- Test 8: Cursor Backward (CSI n D) ---
+0123456789 then back 5 then XXXXX:
+01234XXXXX
+
+--- Test 9: Cursor Previous Line (CSI n F) ---
+Three lines, then cursor to previous 2nd line:
+REPLACED
+LineB
+LineC
+
+--- Test 10: Erase to End of Line (CSI 0 K) ---
+Text with erase-to-end at position 14:
+Keep this part
+
+--- Test 11: Erase from Start (CSI 1 K) ---
+Text with erase-from-start, keeping end:
+              Keep this
+
+--- Test 12: Erase Entire Line (CSI 2 K) ---
+Line fully erased then replaced:
+Replacement
+
+--- Test 13: Save/Restore Cursor (ESC 7, ESC 8) ---
+Save after 'Start ', add 'Middle' and newline, restore to add 'End':
+Start End
+Middle
+
+--- Test 14: Foreground Colors (CSI n m) ---
+Red Green Yellow Blue
+
+--- Test 15: Background Colors (CSI n m) ---
+Red BG Green BG Yellow BG Blue BG
+
+--- Test 16: Text Styles (CSI n m) ---
+Bold Underline Reverse
+
+--- Test 17: Combined Styles ---
+Bold Red Underline Green Bold Blue BG
+
+--- Test 18: Progress Bar (Save/Restore) ---
+Simple progress bar with colors:
+Progress: [##########] 100%
+
+--- Test 19: Status Update Pattern ---
+Status line that gets erased and rewritten:
+Status: Done!
+
+--- Test 20: Multiple Operations ---
+ABC then back 3, write XXX, forward 3, write END:
+XXXEND
+
+=== Test Suite Complete ===
