@@ -1,4 +1,7 @@
 !#/bin/sh
+rm -f out/*
+emacs -q -l test/emacs.el
+export PAGER=cat
 git diff --no-index test/ansi-seq.txt out/ansi-seq-out-shell.txt
 STATUS1=$?
 git diff --no-index test/ansi-seq.txt out/ansi-seq-out-compile.txt

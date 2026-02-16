@@ -5,7 +5,7 @@ Line1
 Line2
 
 --- Test 2: Tab (\t) ---
-Col1    Col2    Col3
+Col1	Col2	Col3
 
 --- Test 3: Backspace (\b) ---
 ABCXYZ
