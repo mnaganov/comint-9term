@@ -73,11 +73,7 @@ Bold Red Underline Green Bold Blue BG
 Simple progress bar with colors:
 Progress: [##########] 100%
 
---- Test 19: Status Update Pattern ---
-Status line that gets erased and rewritten:
-Status: Done!
-
---- Test 20: Multiple Operations ---
+--- Test 19: Multiple Operations ---
 ABC then back 3, write XXX, forward 3, write END:
 XXXEND
 

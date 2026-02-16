@@ -113,14 +113,8 @@ echo "Simple progress bar with colors:"
 echo -e "Progress: [\033[32m##########\033[0m] 100%"
 echo ""
 
-# Test 19: Status Update Pattern
-echo "--- Test 19: Status Update Pattern ---"
-echo "Status line that gets erased and rewritten:"
-echo "Status: Done!"
-echo ""
-
-# Test 20: Multiple Cursor Operations
-echo "--- Test 20: Multiple Operations ---"
+# Test 19: Multiple Cursor Operations
+echo "--- Test 19: Multiple Operations ---"
 echo "ABC then back 3, write XXX, forward 3, write END:"
 echo "XXXEND"
 echo ""
