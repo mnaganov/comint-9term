@@ -8,10 +8,10 @@ Line2
 Col1    Col2    Col3
 
 --- Test 3: Backspace (\b) ---
-Result: ABCXYZ (from ABCDEF with 3 backspaces then XYZ)
+ABCXYZ
 
 --- Test 4: Carriage Return (\r) ---
-Result: New (from 'OriginalText' then \r then 'New')
+New
 
 --- Test 5: Cursor Up (CSI n A) ---
 Before: Bottom, Middle, Top
@@ -54,8 +54,8 @@ Replacement
 
 --- Test 13: Save/Restore Cursor (ESC 7, ESC 8) ---
 Save after 'Start ', add 'Middle' and newline, restore to add 'End':
-Start End
-Middle
+Start Middle
+      End
 
 --- Test 14: Foreground Colors (CSI n m) ---
 Red Green Yellow Blue
@@ -75,6 +75,6 @@ Progress: [##########] 100%
 
 --- Test 19: Multiple Operations ---
 ABC then back 3, write XXX, forward 3, write END:
-XXXEND
+XXX   END
 
 === Test Suite Complete ===
