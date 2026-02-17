@@ -4,6 +4,8 @@
 ;; Restriction: do not add `(provide 'comint-9term)`
 
 (defvar-local comint-9term-saved-pos nil)
+(defvar-local comint-9term-scroll-bottom nil)
+(defvar-local comint-9term-lines-below-scroll 0)
 
 (defun comint-9term-parse-params (params-str &optional default)
   (setq default (or default 1))
@@ -35,17 +37,21 @@
      ((eq char ?D) ; CUB - Cursor Backward
       (backward-char (min n (- (point) (line-beginning-position)))))
      ((eq char ?F) ; CPL - Cursor Previous Line
-      (forward-line (- n))
-      (beginning-of-line))
+      (let ((inhibit-field-text-motion t))
+        (forward-line (- n))
+        (beginning-of-line)))
      ((eq char ?G) ; CHA - Cursor Horizontal Absolute
       (move-to-column (1- n) t))
      ((or (eq char ?H) (eq char ?f)) ; CUP / HVP - Cursor Position
-      (goto-char (point-min))
-      (let ((remaining-lines (forward-line (1- n))))
-        (when (> remaining-lines 0)
-          (goto-char (point-max))
-          (insert (make-string remaining-lines ?\n))
-          (goto-char (point-max))))
+      (if comint-9term-scroll-bottom
+          (let* ((height (1+ comint-9term-scroll-bottom))
+                 (total-lines (line-number-at-pos (point-max)))
+                 (start-line (if (> total-lines height) (- total-lines height) 0))
+                 (target-line (+ start-line n)))
+            (goto-char (point-min))
+            (forward-line (1- (max 1 target-line))))
+        (goto-char (point-min))
+        (forward-line (1- n)))
       (move-to-column (1- m) t))
      ((eq char ?J) ; ED - Erase in Display
       (cond
@@ -59,18 +65,18 @@
         (cond
          ((= n 0) (delete-region cur end))
          ((= n 1)
-          (delete-region beg cur)
-          (insert (make-string (- cur beg) ?\s))
-          (goto-char cur))
-         ((= n 2)
-          (delete-region beg end)
-          (insert (make-string (- end beg) ?\s))
-          (goto-char cur)))))
+          (let ((target (min (1+ cur) end)))
+            (delete-region beg target)
+            (insert (make-string (- target beg) ?\s))))
+         ((= n 2) (delete-region beg end)))))
      ((eq char ?r) ; DECSTBM - Set Scrolling Region
-      nil))))
+      (let ((bottom (nth 1 params)))
+        (when bottom
+          (setq comint-9term-scroll-bottom bottom)
+          (setq comint-9term-lines-below-scroll 1)))))))
 
 (defun comint-9term-insert-and-overwrite (text)
-  "Insert TEXT at process-mark, overwriting existing text if not at end of line."
+  "Insert TEXT at process-mark."
   (when (> (length text) 0)
     (let* ((proc (get-buffer-process (current-buffer)))
            (pm (process-mark proc)))
@@ -78,9 +84,15 @@
       (dolist (c (append text nil))
         (cond
          ((eq c ?\n)
-          (if (eobp)
-              (insert "\n")
-            (forward-line 1)))
+          ;; Check if we are close to the bottom of the scroll region.
+          ;; Increased safety margin to ensure we don't overwrite footer.
+          (let ((at-bottom-check
+                 (and (> comint-9term-lines-below-scroll 0)
+                      (> (save-excursion (forward-line (+ 2 comint-9term-lines-below-scroll))) 0))))
+            (if at-bottom-check
+                (insert "\n")
+              (forward-line 1)
+              (if (eobp) (insert "\n")))))
          ((eq c ?\r) (beginning-of-line))
          ((eq c ?\b) (if (> (current-column) 0) (backward-char 1)))
          (t
@@ -96,6 +108,7 @@
             string
           (with-current-buffer (process-buffer proc)
             (let ((inhibit-read-only t)
+                  (inhibit-field-text-motion t)
                   (start 0)
                   (min-p (process-mark proc)))
               (while (string-match "\033\\(\\[\\([0-9;]*\\)\\([A-Za-z]\\)\\|\\([78]\\)\\)" string start)
@@ -124,6 +137,8 @@
 
 (defun comint-9term-setup ()
   (make-local-variable 'comint-9term-saved-pos)
+  (make-local-variable 'comint-9term-scroll-bottom)
+  (make-local-variable 'comint-9term-lines-below-scroll)
   (add-hook 'comint-preoutput-filter-functions 'comint-9term-filter nil t))
 
 (add-hook 'comint-mode-hook 'comint-9term-setup)
