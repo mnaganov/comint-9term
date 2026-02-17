@@ -154,4 +154,3 @@ DATA is the error object, CONTEXT is context info, CALLER is the command."
       (my-run-test-compile "test/ansi-seq.sh" "out/ansi-seq-out-compile.txt")
       (my-run-test-compile "test/apt-prog.sh" "out/apt-prog-out-compile.txt"))
   (kill-emacs))
-
