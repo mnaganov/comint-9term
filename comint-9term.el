@@ -6,6 +6,7 @@
 (defvar-local comint-9term-saved-pos nil)
 (defvar-local comint-9term-scroll-bottom nil)
 (defvar-local comint-9term-lines-below-scroll 0)
+(defvar-local comint-9term-virtual-col nil)
 
 (defun comint-9term-parse-params (params-str &optional default)
   (setq default (or default 1))
@@ -20,28 +21,42 @@
         (m (or (nth 1 params) 1)))
     (cond
      ((eq char ?A) ; CUU - Cursor Up
-      (let ((col (current-column)))
+      (let ((col (or comint-9term-virtual-col (current-column))))
         (forward-line (- n))
-        (move-to-column col t)))
+        (move-to-column col nil)
+        (if (< (current-column) col)
+            (setq comint-9term-virtual-col col)
+          (setq comint-9term-virtual-col nil))))
      ((eq char ?B) ; CUD - Cursor Down
-      (let ((col (current-column)))
+      (let ((col (or comint-9term-virtual-col (current-column))))
         (forward-line n)
-        (move-to-column col t)))
+        (move-to-column col nil)
+        (if (< (current-column) col)
+            (setq comint-9term-virtual-col col)
+          (setq comint-9term-virtual-col nil))))
      ((eq char ?C) ; CUF - Cursor Forward
-      (let ((end (line-end-position)))
-        (if (> (+ (point) n) end)
-            (progn
-              (goto-char end)
-              (insert (make-string (- (+ (point) n) end) ?\s)))
-          (forward-char n))))
+      (let ((curr (or comint-9term-virtual-col (current-column))))
+        (let ((target (+ curr n)))
+          (move-to-column target nil)
+          (if (< (current-column) target)
+              (setq comint-9term-virtual-col target)
+            (setq comint-9term-virtual-col nil)))))
      ((eq char ?D) ; CUB - Cursor Backward
-      (backward-char (min n (- (point) (line-beginning-position)))))
+      (let ((curr (or comint-9term-virtual-col (current-column))))
+        (let ((target (max 0 (- curr n))))
+          (setq comint-9term-virtual-col nil)
+          (move-to-column target nil))))
      ((eq char ?F) ; CPL - Cursor Previous Line
       (let ((inhibit-field-text-motion t))
         (forward-line (- n))
-        (beginning-of-line)))
+        (beginning-of-line)
+        (setq comint-9term-virtual-col nil)))
      ((eq char ?G) ; CHA - Cursor Horizontal Absolute
-      (move-to-column (1- n) t))
+      (let ((target (1- n)))
+        (move-to-column target nil)
+        (if (< (current-column) target)
+            (setq comint-9term-virtual-col target)
+          (setq comint-9term-virtual-col nil))))
      ((or (eq char ?H) (eq char ?f)) ; CUP / HVP - Cursor Position
       (if comint-9term-scroll-bottom
           (let* ((height (1+ comint-9term-scroll-bottom))
@@ -52,8 +67,13 @@
             (forward-line (1- (max 1 target-line))))
         (goto-char (point-min))
         (forward-line (1- n)))
-      (move-to-column (1- m) t))
+      (let ((target (1- m)))
+        (move-to-column target nil)
+        (if (< (current-column) target)
+            (setq comint-9term-virtual-col target)
+          (setq comint-9term-virtual-col nil))))
      ((eq char ?J) ; ED - Erase in Display
+      (setq comint-9term-virtual-col nil)
       (cond
        ((= n 0) (delete-region (point) (point-max)))
        ((= n 1) (delete-region (point-min) (point)))
@@ -62,6 +82,12 @@
       (let ((beg (line-beginning-position))
             (end (line-end-position))
             (cur (point)))
+        (when comint-9term-virtual-col
+           (let ((gap (- comint-9term-virtual-col (current-column))))
+             (when (> gap 0) (insert (make-string gap ?\s))))
+           (setq comint-9term-virtual-col nil)
+           (setq cur (point))
+           (setq end (line-end-position)))
         (cond
          ((= n 0) (delete-region cur end))
          ((= n 1)
@@ -84,18 +110,31 @@
       (dolist (c (append text nil))
         (cond
          ((eq c ?\n)
-          ;; Check if we are close to the bottom of the scroll region.
-          ;; Increased safety margin to ensure we don't overwrite footer.
+          (setq comint-9term-virtual-col nil)
           (let ((at-bottom-check
                  (and (> comint-9term-lines-below-scroll 0)
                       (> (save-excursion (forward-line (+ 2 comint-9term-lines-below-scroll))) 0))))
             (if at-bottom-check
                 (insert "\n")
               (forward-line 1)
+              ;; If we just moved to EOB, do NOT insert a newline if the command was just navigation.
+              ;; But here we ARE processing \n.
               (if (eobp) (insert "\n")))))
-         ((eq c ?\r) (beginning-of-line))
-         ((eq c ?\b) (if (> (current-column) 0) (backward-char 1)))
+         ((eq c ?\r) 
+          (setq comint-9term-virtual-col nil)
+          (beginning-of-line))
+         ((eq c ?\b) 
+          (if comint-9term-virtual-col
+              (let ((new-col (max 0 (1- comint-9term-virtual-col))))
+                (if (<= new-col (current-column))
+                    (progn (setq comint-9term-virtual-col nil) (move-to-column new-col))
+                  (setq comint-9term-virtual-col new-col)))
+            (if (> (current-column) 0) (backward-char 1))))
          (t
+          (when comint-9term-virtual-col
+             (let ((gap (- comint-9term-virtual-col (current-column))))
+               (when (> gap 0) (insert (make-string gap ?\s))))
+             (setq comint-9term-virtual-col nil))
           (if (and (not (eobp)) (not (eq (following-char) ?\n)))
               (delete-char 1))
           (insert (char-to-string c))))
@@ -139,6 +178,7 @@
   (make-local-variable 'comint-9term-saved-pos)
   (make-local-variable 'comint-9term-scroll-bottom)
   (make-local-variable 'comint-9term-lines-below-scroll)
+  (make-local-variable 'comint-9term-virtual-col)
   (add-hook 'comint-preoutput-filter-functions 'comint-9term-filter nil t))
 
 (add-hook 'comint-mode-hook 'comint-9term-setup)
