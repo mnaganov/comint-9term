@@ -1,6 +1,12 @@
 #!/bin/sh
 rm -f out/*
-emacs -nw -q -l test/emacs.el
+timeout 2s emacs -nw -q -l test/emacs.el
+EMACS_STATUS=$?
+if [ $EMACS_STATUS -eq 124 ]; then
+    echo "Process timed out! The Elisp code must cause an infinite loop"
+    echo "FAILURE"
+    exit 3
+fi
 if [ -z "$(ls -A "out/")" ]; then
     echo "Out is empty. Check the Elisp code for errors."
     echo "FAILURE"
