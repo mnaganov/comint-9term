@@ -1,32 +1,49 @@
 # Project Plan: Extending Emacs `comint-mode` for Advanced ANSI Escape Sequences
 
-**Project Goal:** Extend Emacs `comint-mode` to support advanced ANSI escape sequences without modifying Emacs C or elisp source code. All integration will be performed by utilizing hooks provided by `comint` mode, with all code residing in `comint-9term.el`. The primary hook for ANSI parsing will be `comint-preoutput-filter-functions`.
+**Project Goal:** Extend Emacs `comint-mode` to support advanced ANSI escape sequences without modifying Emacs C or elisp source code.
 
-## Workflow (Golden Loop Methodology):
+## ANSI Sequences to Support:
 
-1.  **Initial Verification & Task Identification:**
-    *   Execute `verify.sh` to establish a baseline.
-    *   Analyze the differences between `out/*.txt` (actual Emacs output) and `test/*.txt` (golden output) to pinpoint specific ANSI control sequences that `comint-mode` currently misinterprets or ignores.
-    *   Examine `test/ansi-seq.sh` and `test/apt-prog.sh` to understand the types of ANSI sequences being tested (e.g., color, cursor movement, erase commands).
-    *   Create a detailed list of individual "tasks," each targeting the implementation of support for a specific unsupported ANSI feature.
+Based on `ansi-seq.sh` and `apt-prog.sh`:
 
-2.  **Implementation (Iterative & Incremental):**
-    *   Address each task from the identified list sequentially.
-    *   Develop and integrate Elisp code within `comint-9term.el`. This code will be added to `comint-preoutput-filter-functions` to preprocess the output and handle ANSI escape sequences.
-    *   Utilize `grep` and inspect Emacs Lisp source files under `emacs-source/lisp/` (e.g., `ansi-color.el`, `term.el`, `comint.el`) to understand existing implementations, identify relevant functions, and ensure consistency with Emacs's internal workings.
+| Sequence | Name | Description |
+| :--- | :--- | :--- |
+| `CSI n A` | CUU | Cursor Up |
+| `CSI n B` | CUD | Cursor Down |
+| `CSI n C` | CUF | Cursor Forward |
+| `CSI n D` | CUB | Cursor Backward |
+| `CSI n F` | CPL | Cursor Previous Line |
+| `CSI n G` | CHA | Cursor Horizontal Absolute |
+| `CSI n ; m H` | CUP | Cursor Position |
+| `CSI n ; m f` | HVP | Horizontal Vertical Position |
+| `CSI n J` | ED | Erase in Display (0: end, 1: start, 2: all) |
+| `CSI n K` | EL | Erase in Line (0: end, 1: start, 2: all) |
+| `CSI n ; m r` | DECSTBM | Set Scrolling Region |
+| `ESC 7` | DECSC | Save Cursor |
+| `ESC 8` | DECRC | Restore Cursor |
+| `\b` | BS | Backspace (Handled by comint usually?) |
+| `\r` | CR | Carriage Return (Handled by comint usually?) |
 
-3.  **Rigorous Verification:**
-    *   After each implementation step (or a small set of related steps), execute `verify.sh`.
-    *   **Critical Step:** Immediately check `out/elisp-errors.txt` for any Emacs Lisp errors. If errors are present, diagnose and fix them before proceeding to further implementation.
-    *   Compare `out/*.txt` against `test/*.txt` to confirm that the newly implemented ANSI support functions correctly.
-    *   **No Regressions:** Strictly ensure that changes made for one ANSI feature do not negatively impact previously working features or introduce new discrepancies in the `ansi-seq.sh` or `apt-prog.sh` tests. Avoid a vicious cycle of fixing and re-fixing.
+## Tasks:
 
-4.  **Commit & Task Closure:**
-    *   Once a specific ANSI feature (or a logical group of features) is fully implemented and passes all verification steps (no errors, no regressions, correct output), commit the changes to version control.
-    *   Craft a clear, concise commit message describing the "why" and "what" of the changes.
-    *   Mark the corresponding task as `completed`.
+- [x] **Task 1:** Run `verify.sh` to establish baseline and identify failures.
+- [in_progress] **Task 2:** Implement basic cursor movement sequences (CUU, CUD, CUF, CUB).
+- [ ] **Task 3:** Implement Erase Line (EL) sequences.
+- [ ] **Task 4:** Implement Save/Restore Cursor sequences.
+- [ ] **Task 5:** Implement advanced sequences (CHA, CUP, CPL).
+- [ ] **Task 6:** Implement Scrolling Region (DECSTBM) and Erase Display (ED).
+- [ ] **Task 7:** Final verification and cleanup.
 
-## Initial Tasks:
+## Implementation Strategy:
 
-*   **Task 1 (Pending):** Run `verify.sh` to get the initial output and identify the specific ANSI escape sequences that are currently unsupported or incorrectly rendered.
-*   **Task 2 (Pending):** Based on the analysis from Task 1, break down the problem into smaller, manageable sub-tasks, each focusing on supporting a particular ANSI feature (e.g., specific SGR parameters, cursor movements).
+1.  Use `comint-preoutput-filter-functions` to process the string before it's inserted into the buffer.
+2.  However, some operations (like cursor movement) might be easier to implement *after* insertion using `comint-output-filter-functions` because they need to manipulate the buffer.
+3.  Wait, if I use `comint-preoutput-filter-functions`, I can return an empty string and do all the buffer manipulations myself.
+4.  Actually, `term.el` has a lot of this logic. I can't use `term.el` directly as it's a different mode, but I can see how it handles things.
+
+## Notes:
+
+- `comint-preoutput-filter-functions` passes the string to be inserted.
+- I can use a state machine to track the cursor position if needed, or just rely on `point` in the buffer.
+- Emacs `comint-mode` already handles some sequences. I should only implement what's missing.
+- `ansi-color` handles SGR (`CSI n m`).
