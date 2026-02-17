@@ -1,6 +1,18 @@
 #!/bin/sh
 rm -f out/*
 emacs -nw -q -l test/emacs.el
+if [ -z "$(ls -A "out/")" ]; then
+    echo "Out is empty. Check the Elisp code for errors."
+    echo "FAILURE"
+    exit 2
+fi
+ERRORS_FILE=out/elisp-errors.txt
+if [ -f "$ERRORS_FILE" ]; then
+    echo "Elisp errors:"
+    cat "$ERRORS_FILE"
+    echo "FAILURE"
+    exit 2
+fi
 export PAGER=cat
 git diff --no-index test/ansi-seq.txt out/ansi-seq-out-shell.txt
 STATUS1=$?
