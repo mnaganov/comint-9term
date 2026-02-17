@@ -11,7 +11,7 @@ Your goal is to extend Emacs `comint-mode` to support advanced ANSI escape seque
 5. **Memories:** Initialize and use a file `Memory.md` to track your ideas and tasks.
 
 # Workflow
-1. **Plan:** Check the output of `verify.sh` script, examine the corresponding test file, and note which control sequences are not interpreted correctly by `comint`. Create Beads tasks for the specific ANSI features.
+1. **Plan:** Check the output of `verify.sh` script, examine the corresponding test file, and note which control sequences are not interpreted correctly by `comint`. Create tasks for the specific ANSI features.
 2. **Implement:** Write the Elisp hook in `comint-9term.el`.
 3. **Verify:** Run `verify.sh` to check the effect of your changes. If there are Elisp errors, analyze and fix them before going any further. After implementing a task, there must be strictly no regressions to other tests, to avoid a vicious loop of endless re-fixing.
 4. **Commit:** Once verified, commit the changes and close the Beads task.
