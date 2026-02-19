@@ -198,8 +198,3 @@
   (add-hook 'comint-preoutput-filter-functions 'comint-9term-filter nil t))
 
 (add-hook 'comint-mode-hook 'comint-9term-setup)
-
-(dolist (buf (buffer-list))
-  (with-current-buffer buf
-    (when (derived-mode-p 'comint-mode)
-      (comint-9term-setup))))
