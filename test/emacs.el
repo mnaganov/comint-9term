@@ -163,13 +163,22 @@ DATA is the error object, CONTEXT is context info, CALLER is the command."
 
 (make-directory "out" t)
 
-(unwind-protect
-    (when (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt")
-      (let ((script-file (expand-file-name "out/current-script")))
-        (when (file-exists-p script-file)
-          (with-temp-buffer
-            (insert-file-contents script-file)
-            (let ((script (string-trim (buffer-string))))
-              (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
-              (my-run-test-compile (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))))))
-  (kill-emacs))
+(let* ((script-file (expand-file-name "out/current-script"))
+       ;; Load the script name once into a variable.
+       ;; If file doesn't exist, 'script' will be nil.
+       (script (when (file-exists-p script-file)
+                 (with-temp-buffer
+                   (insert-file-contents script-file)
+                   (string-trim (buffer-string))))))
+  (unwind-protect
+      ;; We check 'script' first to ensure we actually have a name before running tests
+      (when (and script
+                 (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt"))
+        (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
+        (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))
+    (progn
+      ;; Only save messages if we successfully read the script name
+      (when script
+        (with-current-buffer "*Messages*"
+          (write-region (point-min) (point-max) (concat "out/" script "-emacs-messages.txt"))))
+      (kill-emacs))))

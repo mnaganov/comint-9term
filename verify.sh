@@ -86,11 +86,11 @@ verify_screen_gen() {
         local session_name="sess_${test_name}_${mode}"
 
         echo "Generating golden master for $test_name ($mode) using dims: $stty_conf"
-        screen -c test/screenrc -d -m -S "$session_name" bash -c \
+        screen -c test/screenrc -d -m -S "$session_name" -L -Logfile "${golden_file}.screen.log" bash -c \
             "stty ${stty_conf}; \
-             screen -c test/screenrc -X scrollback 10000; \
+             screen -X clear; \
              ${script_path}; \
-             sleep 3; \
+             sleep 1; \
              screen -X hardcopy -h ${golden_file}"
     done
 }
@@ -130,6 +130,7 @@ done
 
 # 4b. Wait for all golden files to appear
 echo "Waiting for screen generation to complete..."
+SECONDS_WAITED=0
 while true; do
     all_files_present=true
 
@@ -143,23 +144,27 @@ while true; do
             fi
         done
     done
-
-    # If the flag wasn't flipped to false, everything is ready
     if [ "$all_files_present" = true ]; then
         break
     fi
-
+    if [ "$SECONDS_WAITED" -ge 10 ]; then
+        echo "FAILURE: Timeout waiting for screen golden files."
+        exit 1
+    fi
     sleep 1
+    ((SECONDS_WAITED++))
 done
 
 # 4c. Compare Emacs Output vs Screen Golden Output
 echo "Comparing Emacs output with Screen output..."
 for test in "${SCREEN_TESTS[@]}"; do
     for mode in shell compile; do
-        local golden_file="out/${test}-out-${mode}-golden.txt"
-        local emacs_file="out/${test}-out-${mode}.txt"
+        golden_file="out/${test}-out-${mode}-golden.txt"
+        emacs_file="out/${test}-out-${mode}.txt"
 
         # Trim the golden file in-place:
+        # Remove everything before the start line
+        sed -i -n '/=== Apt Progress Bar Test Suite ===/,$p' "$golden_file"
         # Quit processing immediately after printing "=== Test Suite Complete ==="
         sed -i '/=== Test Suite Complete ===/q' "$golden_file"
 
