@@ -28,28 +28,36 @@
 
       ;; Waits until the script displays `=== Test Suite Complete ===`
       ;; accept-process-output ensures Emacs doesn't freeze while waiting
-      (while (not (save-excursion
-                    (goto-char (point-min))
-                    (search-forward "=== Test Suite Complete ===" nil t)))
-        (accept-process-output proc 0.5))
+      (let ((start-time (float-time))
+            (found nil))
+        ;; Wait while string not found AND less than 5 seconds have passed
+        (while (and (not (setq found (save-excursion
+                                       (goto-char (point-min))
+                                       (search-forward "=== Test Suite Complete ===" nil t))))
+                    (< (- (float-time) start-time) 5.0))
+          (accept-process-output proc 0.5))
 
-      ;; Jumps to the beginning of the buffer
-      (goto-char (point-min))
+        (if found
+            (progn
+              ;; Jumps to the beginning of the buffer
+              (goto-char (point-min))
 
-      ;; Finds `===` and starts region selection from the beginning of this substring
-      (search-forward "===")
-      (goto-char (match-beginning 0))
-      (push-mark (point) nil t) ; Sets the mark and activates the region
+              ;; Finds `===` and starts region selection from the beginning of this substring
+              (search-forward "===")
+              (goto-char (match-beginning 0))
+              (push-mark (point) nil t) ; Sets the mark and activates the region
 
-      ;; Jumps to the end of the buffer
-      (goto-char (point-max))
+              ;; Jumps to the end of the buffer
+              (goto-char (point-max))
 
-      ;; Finds `===` and sets the cursor on the line after it
-      (search-backward "===")
-      (forward-line 1)
+              ;; Finds `===` and sets the cursor on the line after it
+              (search-backward "===")
+              (forward-line 1)
 
-      ;; Saves the selected region into a file
-      (write-region (mark) (point) output-file)
+              ;; Saves the selected region into a file
+              (write-region (mark) (point) output-file))
+          ;; If the script did not finish, just save the entire buffer contents
+          (write-region (point-min) (point-max) output-file)))
 
       ;; Closes the shell buffer
       (kill-buffer buf))))
@@ -73,32 +81,40 @@
         (set-process-query-on-exit-flag proc nil))
 
       ;; Waits until the script displays `=== Test Suite Complete ===`
-      (while (not (save-excursion
-                    (goto-char (point-min))
-                    (search-forward "=== Test Suite Complete ===" nil t)))
-        ;; Use accept-process-output to wait if process is running,
-        ;; otherwise sleep briefly to avoid a tight CPU loop if the process ends instantly
-        (if (and proc (process-live-p proc))
-            (accept-process-output proc 0.5)
-          (sleep-for 0.5)))
+      (let ((start-time (float-time))
+            (found nil))
 
-      ;; Jumps to the beginning of the buffer
-      (goto-char (point-min))
+        (while (and (not (setq found (save-excursion
+                                       (goto-char (point-min))
+                                       (search-forward "=== Test Suite Complete ===" nil t))))
+                    (< (- (float-time) start-time) 5.0))
+          ;; Use accept-process-output to wait if process is running,
+          ;; otherwise sleep briefly to avoid a tight CPU loop if the process ends instantly
+          (if (and proc (process-live-p proc))
+              (accept-process-output proc 0.5)
+            (sleep-for 0.5)))
 
-      ;; Finds `===` and starts region selection from the beginning of this substring
-      (search-forward "===")
-      (goto-char (match-beginning 0))
-      (push-mark (point) nil t) ; Sets the mark and activates the region
+        (if found
+            (progn
+              ;; Jumps to the beginning of the buffer
+              (goto-char (point-min))
 
-      ;; Jumps to the end of the buffer
-      (goto-char (point-max))
+              ;; Finds `===` and starts region selection from the beginning of this substring
+              (search-forward "===")
+              (goto-char (match-beginning 0))
+              (push-mark (point) nil t) ; Sets the mark and activates the region
 
-      ;; Finds `===` and sets the cursor on the line after it
-      (search-backward "===")
-      (forward-line 1)
+              ;; Jumps to the end of the buffer
+              (goto-char (point-max))
 
-      ;; Saves the selected region into a file
-      (write-region (mark) (point) output-file)
+              ;; Finds `===` and sets the cursor on the line after it
+              (search-backward "===")
+              (forward-line 1)
+
+              ;; Saves the selected region into a file
+              (write-region (mark) (point) output-file))
+          ;; If the script did not finish, just save the entire buffer contents
+          (write-region (point-min) (point-max) output-file)))
 
       ;; Closes the compilation buffer
       (kill-buffer buf))))
@@ -154,6 +170,6 @@ DATA is the error object, CONTEXT is context info, CALLER is the command."
           (with-temp-buffer
             (insert-file-contents script-file)
             (let ((script (string-trim (buffer-string))))
-              (my-run-test-in-shell (concat "test/" script-file ".sh") (concat "out/" script-file "-out-shell.txt"))
-              (my-run-test-compile (concat "test/" script-file ".sh") (concat "out/" script-file "-out-compile.txt")))))))
+              (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
+              (my-run-test-compile (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))))))
   (kill-emacs))
