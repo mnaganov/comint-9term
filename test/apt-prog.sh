@@ -1,12 +1,17 @@
 #!/bin/bash
 
-echo "=== Apt Progress Bar Test Suite ==="
-echo ""
-
 # 1. Setup Environment
 # ------------------------------------------------------------------
 : ${LINES:=$(tput lines)}
 : ${COLUMNS:=$(tput cols)}
+
+
+echo "=== Apt Progress Bar Test Suite ==="
+echo "LINES=${LINES}:COLUMNS=${COLUMNS}"
+echo ""
+
+# Parse argument (Default 101)
+STOP_AT=${1:-101}
 
 # Calculate the scroll region boundary (Everything except the last line)
 # If LINES=78, SCROLL_BOTTOM=77
@@ -56,44 +61,56 @@ echo "Building dependency tree... Done"
 #    back into the allowed scroll region.
 printf "\n\n\0337\033[0;${SCROLL_BOTTOM}r\0338\033[1A"
 
-
 # 4. Run Simulation
 # ------------------------------------------------------------------
 # The cursor is now safely inside the scroll region.
 # Text will scroll nicely without touching the bar at the bottom.
+WIPE_BAR=0
+while true; do
+    printf "Preparing to unpack .../mc-data_3%%3a4.8.29-2_all.deb ...\n"
+    update_progress 0
+    [ "$STOP_AT" -eq 0 ] && break
+    # sleep 0.5
 
-printf "Preparing to unpack .../mc-data_3%%3a4.8.29-2_all.deb ...\n"
-update_progress 0
-# sleep 0.5
+    printf "Unpacking mc-data (3:4.8.29-2) ...\n"
+    update_progress 10
+    [ "$STOP_AT" -le 10 ] && break
+    # sleep 0.5
 
-printf "Unpacking mc-data (3:4.8.29-2) ...\n"
-update_progress 10
-# sleep 0.5
+    printf "Preparing to unpack .../mc_3%%3a4.8.29-2_arm64.deb ...\n"
+    update_progress 20
+    [ "$STOP_AT" -le 20 ] && break
+    # sleep 0.5
 
-printf "Preparing to unpack .../mc_3%%3a4.8.29-2_arm64.deb ...\n"
-update_progress 20
-# sleep 0.5
+    printf "Unpacking mc (3:4.8.29-2) ...\n"
+    update_progress 40
+    [ "$STOP_AT" -le 40 ] && break
+    # sleep 0.5
 
-printf "Unpacking mc (3:4.8.29-2) ...\n"
-update_progress 40
-# sleep 0.5
+    printf "Selecting previously unselected package unzip...\n"
+    update_progress 50
+    [ "$STOP_AT" -le 50 ] && break
+    # sleep 0.5
 
-printf "Selecting previously unselected package unzip...\n"
-update_progress 50
-# sleep 0.5
+    printf "Setting up unzip (6.0-28) ...\n"
+    update_progress 70
+    [ "$STOP_AT" -le 70 ] && break
+    # sleep 0.5
 
-printf "Setting up unzip (6.0-28) ...\n"
-update_progress 70
-# sleep 0.5
+    printf "Processing triggers for mailcap (3.70+nmu1) ...\n"
+    update_progress 90
+    [ "$STOP_AT" -le 90 ] && break
+    # sleep 0.5
 
-printf "Processing triggers for mailcap (3.70+nmu1) ...\n"
-update_progress 90
-# sleep 0.5
+    printf "Processing triggers for man-db (2.11.2-2) ...\n"
+    update_progress 100
+    [ "$STOP_AT" -le 100 ] && break
+    # sleep 0.5
 
-printf "Processing triggers for man-db (2.11.2-2) ...\n"
-update_progress 100
-# sleep 0.5
-
+    # End the loop
+    WIPE_BAR=1
+    break
+done
 
 # 5. Cleanup Sequence (From Dump offset 0000201c)
 # ------------------------------------------------------------------
@@ -103,7 +120,12 @@ update_progress 100
 # 4. \0338          : Restore cursor
 # 5. \033[1A        : Move Up 1 (To the line above the bar)
 # 6. \033[J         : Clear to End of Screen (Wipes the bar)
-printf "\r\n\r\n\0337\033[0;${LINES}r\0338\033[1A\033[J"
+printf "\r\n\r\n\0337\033[0;${LINES}r\0338"
+if [ "$WIPE_BAR" -eq 1 ]; then
+    printf "\033[1A\033[J"
+else
+    printf "\033[${LINES};0f\n\n"
+fi
 
 # We exit cleanly. The prompt will appear where the bar used to be (or just above it).
 echo "=== Test Suite Complete ==="
