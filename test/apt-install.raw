@@ -1,65 +1,0 @@
-Script started on 2026-02-10 20:42:34-08:00 [TERM="xterm-16color" TTY="/dev/pts/0" COLUMNS="147" LINES="78"]
-[?2004h]0;mnaganov@debian: ~/comint-fixingmnaganov@debian:~/comint-fixing$ suto[K[Kdo apt install mc
-[?2004l[sudo] password for mnaganov: 
-Reading package lists... 0%Reading package lists... 100%Reading package lists... Done
-Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
-Reading state information... 0% Reading state information... 0%Reading state information... Done
-The following packages were automatically installed and are no longer required:
-  fonts-font-awesome fonts-glyphicons-halflings fonts-lyx fonts-mathjax g++ g++-12 isympy-common isympy3 javascript-common jupyter-core
-  jupyter-nbextension-jupyter-js-widgets libblas3 libboost-dev libboost1.74-dev libexpat1-dev libgfortran5 libimagequant0 libjs-backbone
-  libjs-bootstrap libjs-bootstrap-tour libjs-codemirror libjs-es6-promise libjs-jed libjs-jquery libjs-jquery-typeahead libjs-jquery-ui
-  libjs-marked libjs-mathjax libjs-moment libjs-requirejs libjs-requirejs-text libjs-sphinxdoc libjs-text-encoding libjs-underscore libjs-xterm
-  liblapack3 liblbfgsb0 liblua5.3-0 libnorm1 libopenblas-dev libopenblas-pthread-dev libopenblas0 libopenblas0-pthread libopenjp2-7 libpgm-5.3-0
-  libpython3-all-dev libpython3-dev libpython3.11-dev libqhull-r8.0 libraqm0 libsodium23 libstdc++-12-dev libwebpdemux2 libwebpmux3 libxsimd-dev
-  libzmq5 node-jed pandoc pandoc-data python-babel-localedata python-matplotlib-data python-tinycss2-common python3-all python3-all-dev
-  python3-appdirs python3-argon2 python3-asttokens python3-attr python3-babel python3-backcall python3-beniget python3-bleach python3-bs4
-  python3-bytecode python3-cffi-backend python3-contourpy python3-coverage python3-cycler python3-dateutil python3-debugpy python3-decorator
-  python3-defusedxml python3-dev python3-entrypoints python3-executing python3-fastjsonschema python3-fonttools python3-fs python3-gast
-  python3-html5lib python3-ipykernel python3-ipython python3-ipython-genutils python3-ipywidgets python3-jedi python3-jinja2 python3-json-pointer
-  python3-jsonschema python3-jupyter-client python3-jupyter-core python3-jupyterlab-pygments python3-kiwisolver python3-lxml python3-lz4
-  python3-markupsafe python3-matplotlib python3-matplotlib-inline python3-mpmath python3-nbclient python3-nbconvert python3-nbformat
-  python3-nest-asyncio python3-notebook python3-numpy python3-olefile python3-packaging python3-pandocfilters python3-parso python3-pexpect
-  python3-pickleshare python3-pil python3-pil.imagetk python3-ply python3-prometheus-client python3-prompt-toolkit python3-psutil
-  python3-ptyprocess python3-pure-eval python3-py python3-pydevd python3-pyrsistent python3-pythran python3-rfc3987 python3-scipy
-  python3-send2trash python3-soupsieve python3-stack-data python3-sympy python3-terminado python3-tinycss2 python3-tornado python3-traitlets
-  python3-tz python3-ufolib2 python3-uritemplate python3-wcwidth python3-webcolors python3-webencodings python3-widgetsnbextension python3-zmq
-  python3.11-dev unicode-data zlib1g-dev
-Use 'sudo apt autoremove' to remove them.
-The following additional packages will be installed:
-  mc-data unzip
-Suggested packages:
-  arj catdvi | texlive-binaries dbview djvulibre-bin epub-utils genisoimage gv imagemagick libaspell-dev links | w3m | lynx odt2txt poppler-utils
-  python python-boto python-tz unar wimtools xpdf | pdf-viewer zip
-The following NEW packages will be installed:
-  mc mc-data unzip
-0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
-Need to get 1,993 kB of archives.
-After this operation, 8,502 kB of additional disk space will be used.
-Do you want to continue? [Y/n] 
-[33m0% [Working][0m            Get:1 http://mirrors.ocf.berkeley.edu/debian bookworm/main arm64 mc-data all 3:4.8.29-2 [1,346 kB]
-[33m0% [1 mc-data 0 B/1,346 kB 0%][0m[33m                              61% [Working][0m             Get:2 http://mirrors.ocf.berkeley.edu/debian bookworm/main arm64 mc arm64 3:4.8.29-2 [490 kB]
-[33m61% [2 mc 0 B/490 kB 0%][0m[33m87% [Waiting for headers][0m                         Get:3 http://mirrors.ocf.berkeley.edu/debian bookworm/main arm64 unzip arm64 6.0-28 [157 kB]
-[33m87% [3 unzip 0 B/157 kB 0%][0m[33m                           100% [Working][0m              Fetched 1,993 kB in 1s (3,163 kB/s)
-
-7[0;77r8[1ASelecting previously unselected package mc-data.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 100512 files and directories currently installed.)
-Preparing to unpack .../mc-data_3%3a4.8.29-2_all.deb ...
-7[78;0f[42m[30mProgress: [  0%][49m[39m [.............................................................................................................................] 87[78;0f[42m[30mProgress: [  8%][49m[39m [#########....................................................................................................................] 8Unpacking mc-data (3:4.8.29-2) ...
-7[78;0f[42m[30mProgress: [ 15%][49m[39m [###################..........................................................................................................] 8Selecting previously unselected package mc.
-Preparing to unpack .../mc_3%3a4.8.29-2_arm64.deb ...
-7[78;0f[42m[30mProgress: [ 23%][49m[39m [############################.................................................................................................] 8Unpacking mc (3:4.8.29-2) ...
-7[78;0f[42m[30mProgress: [ 31%][49m[39m [######################################.......................................................................................] 8Selecting previously unselected package unzip.
-Preparing to unpack .../unzip_6.0-28_arm64.deb ...
-7[78;0f[42m[30mProgress: [ 38%][49m[39m [################################################.............................................................................] 8Unpacking unzip (6.0-28) ...
-7[78;0f[42m[30mProgress: [ 46%][49m[39m [#########################################################....................................................................] 8Setting up unzip (6.0-28) ...
-7[78;0f[42m[30mProgress: [ 54%][49m[39m [###################################################################..........................................................] 87[78;0f[42m[30mProgress: [ 62%][49m[39m [############################################################################.................................................] 8Setting up mc-data (3:4.8.29-2) ...
-7[78;0f[42m[30mProgress: [ 69%][49m[39m [######################################################################################.......................................] 87[78;0f[42m[30mProgress: [ 77%][49m[39m [################################################################################################.............................] 8Setting up mc (3:4.8.29-2) ...
-7[78;0f[42m[30mProgress: [ 85%][49m[39m [#########################################################################################################....................] 8update-alternatives: using /usr/bin/mcview to provide /usr/bin/view (view) in auto mode
-7[78;0f[42m[30mProgress: [ 92%][49m[39m [###################################################################################################################..........] 8Processing triggers for mailcap (3.70+nmu1) ...
-Processing triggers for hicolor-icon-theme (0.17-2) ...
-Processing triggers for man-db (2.11.2-2) ...
-
-7[0;78r8[1A[J[?2004h]0;mnaganov@debian: ~/comint-fixingmnaganov@debian:~/comint-fixing$ exit
-[?2004lexit
-
-Script done on 2026-02-10 20:42:56-08:00 [COMMAND_EXIT_CODE="0"]

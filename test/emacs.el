@@ -149,8 +149,11 @@ DATA is the error object, CONTEXT is context info, CALLER is the command."
 
 (unwind-protect
     (when (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt")
-      (my-run-test-in-shell "test/ansi-seq.sh" "out/ansi-seq-\out-shell.txt")
-      (my-run-test-in-shell "test/apt-prog.sh" "out/apt-prog-out-shell.txt")
-      (my-run-test-compile "test/ansi-seq.sh" "out/ansi-seq-out-compile.txt")
-      (my-run-test-compile "test/apt-prog.sh" "out/apt-prog-out-compile.txt"))
+      (let ((script-file (expand-file-name "out/current-script")))
+        (when (file-exists-p script-file)
+          (with-temp-buffer
+            (insert-file-contents script-file)
+            (let ((script (string-trim (buffer-string))))
+              (my-run-test-in-shell (concat "test/" script-file ".sh") (concat "out/" script-file "-out-shell.txt"))
+              (my-run-test-compile (concat "test/" script-file ".sh") (concat "out/" script-file "-out-compile.txt")))))))
   (kill-emacs))
