@@ -85,9 +85,13 @@ verify_screen_gen() {
         # We use a unique session name to prevent collisions
         local session_name="sess_${test_name}_${mode}"
 
+        local cols=$(echo "$stty_conf" | awk '{print $4}')
+        local rows=$(echo "$stty_conf" | awk '{print $2}')
+
         echo "Generating golden master for $test_name ($mode) using dims: $stty_conf"
         screen -c test/screenrc -d -m -S "$session_name" -L -Logfile "${golden_file}.screen.log" bash -c \
             "stty ${stty_conf}; \
+             printf '\033[8;${rows};${cols}t'; \
              screen -X clear; \
              ${script_path}; \
              sleep 1; \
