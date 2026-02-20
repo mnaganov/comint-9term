@@ -5,8 +5,8 @@ ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
 SIMPLE_TESTS=("ansi-seq")
 # Tests that require screen execution to generate a golden master for comparison
-# SCREEN_TESTS=("apt-prog" "apt-prog-0")
-SCREEN_TESTS=("apt-prog-0")
+SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30")
+#SCREEN_TESTS=("apt-prog")
 # All tests combined
 ALL_TESTS=("${SIMPLE_TESTS[@]}" "${SCREEN_TESTS[@]}")
 
@@ -91,7 +91,8 @@ verify_screen_gen() {
              screen -X clear; \
              ${script_path}; \
              sleep 1; \
-             screen -X hardcopy -h ${golden_file}"
+             screen -X hardcopy -h ${golden_file}; \
+             echo \"${golden_file} done\";"
     done
 }
 
