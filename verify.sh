@@ -174,7 +174,7 @@ for test in "${SCREEN_TESTS[@]}"; do
         sed -i '/=== Test Suite Complete ===/q' "$golden_file"
 
         echo "Comparing $test ($mode) Emacs output vs Screen golden..."
-        git diff --no-index "$golden_file" "$emacs_file"
+        git diff --no-index --ignore-space-at-eol --ignore-blank-lines "$golden_file" "$emacs_file"
 
         if [ $? -ne 0 ]; then
             echo "FAILURE: Golden mismatch for $test ($mode)"

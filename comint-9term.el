@@ -116,11 +116,15 @@
         (cond
          ((eq c ?\n)
           (setq comint-9term-virtual-col nil)
-          (let ((at-bottom-check
-                 (and (> comint-9term-lines-below-scroll 0)
-                      (> (save-excursion (forward-line (+ 2 comint-9term-lines-below-scroll))) 0))))
-            (if at-bottom-check
-                (insert "\n")
+          (let* ((should-scroll
+                  (and (> comint-9term-lines-below-scroll 0)
+                       (let* ((total (line-number-at-pos (point-max)))
+                              (height (1+ comint-9term-scroll-bottom))
+                              (start (if (> total height) (- total height) 0))
+                              (current (line-number-at-pos)))
+                         (>= (- current start) comint-9term-scroll-bottom)))))
+            (if should-scroll
+                (progn (end-of-line) (insert "\n"))
               (let ((lines-left (forward-line 1)))
                 (if (> lines-left 0)
                     (insert "\n")
@@ -214,3 +218,4 @@
   (add-hook 'comint-preoutput-filter-functions 'comint-9term-filter nil t))
 
 (add-hook 'comint-mode-hook 'comint-9term-setup)
+(add-hook 'compilation-shell-minor-mode-hook 'comint-9term-setup)
