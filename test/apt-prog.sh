@@ -59,7 +59,7 @@ echo "Building dependency tree... Done"
 # 5. \033[1A        : Move Up 1 Line.
 #    CRITICAL: This pulls the cursor from the forbidden bottom line (Bar area)
 #    back into the allowed scroll region.
-printf "\n\n\0337\033[0;${SCROLL_BOTTOM}r\0338\033[1A"
+printf "\n\n\0337\033[1;${SCROLL_BOTTOM}r\0338\033[1A"
 
 # 4. Run Simulation
 # ------------------------------------------------------------------

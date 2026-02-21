@@ -102,7 +102,7 @@
          ((= n 2) (delete-region beg end)))))
      ((eq char ?r) ; DECSTBM - Set Scrolling Region
       (let ((bottom (nth 1 params)))
-        (when bottom
+        (when (and bottom (> n 0))
           (setq comint-9term-scroll-bottom bottom)
           (setq comint-9term-lines-below-scroll 1)))))))
 
