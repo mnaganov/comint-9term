@@ -92,6 +92,7 @@ verify_screen_gen() {
         screen -c test/screenrc -d -m -S "$session_name" -L -Logfile "${golden_file}.screen.log" bash -c \
             "stty ${stty_conf}; \
              printf '\033[8;${rows};${cols}t'; \
+             sleep 0.5; \
              screen -X clear; \
              ${script_path}; \
              sleep 1; \
