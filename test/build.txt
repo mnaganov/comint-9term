@@ -55,7 +55,7 @@ SOONG_INCREMENTAL_ANALYSIS=true
 ============================================
 ninja: XX.XXs Build Succeeded: 0 steps - 0.00/s
 
-RBE Stats: down 0 B, up 0 B,
+RBE Stats: down 0 B, up 0 B, 
 
 #### build completed successfully (XX seconds) ####
 

@@ -8,6 +8,7 @@
 (defvar-local comint-9term-lines-below-scroll 0)
 (defvar-local comint-9term-virtual-col nil)
 (defvar-local comint-9term-partial-seq "")
+(defvar-local comint-9term-height-override nil)
 
 (defun comint-9term-parse-params (params-str &optional default)
   (setq default (or default 1))
@@ -18,9 +19,13 @@
       params)))
 
 (defun comint-9term-max-height ()
-  (condition-case nil
-      (frame-height)
-    (error 24)))
+  (or comint-9term-height-override
+      (let ((env-lines (getenv "LINES")))
+        (if env-lines
+            (string-to-number env-lines)
+          (condition-case nil
+              (frame-height)
+            (error 24))))))
 
 (defun comint-9term-handle-csi (char params)
   (let ((n (or (nth 0 params) 1))
@@ -67,7 +72,7 @@
      ((or (eq char ?H) (eq char ?f)) ; CUP / HVP - Cursor Position
       (setq n (min n max-h))
       (if comint-9term-scroll-bottom
-          (let* ((height (1+ comint-9term-scroll-bottom))
+          (let* ((height max-h)
                  (total-lines (line-number-at-pos (point-max)))
                  (start-line (if (> total-lines height) (- total-lines height) 0))
                  (target-line (+ start-line (max 1 n))))
@@ -127,7 +132,7 @@
           (let* ((should-scroll
                   (and (> comint-9term-lines-below-scroll 0)
                        (let* ((total (line-number-at-pos (point-max)))
-                              (height (1+ comint-9term-scroll-bottom))
+                              (height (comint-9term-max-height))
                               (start (if (> total height) (- total height) 0))
                               (current (line-number-at-pos)))
                          (>= (- current start) comint-9term-scroll-bottom)))))
@@ -168,6 +173,9 @@
                   (inhibit-field-text-motion t)
                   (start 0)
                   (min-p (process-mark proc)))
+              ;; Check for LINES= override
+              (when (string-match "LINES=\\([0-9]+\\)" string)
+                (setq comint-9term-height-override (string-to-number (match-string 1 string))))
               ;; Prepend any partial sequence from previous run
               (when (and comint-9term-partial-seq (> (length comint-9term-partial-seq) 0))
                 (setq string (concat comint-9term-partial-seq string))
