@@ -166,7 +166,7 @@ while true; do
     for test in "${SCREEN_TESTS[@]}"; do
         for mode in shell compile; do
             if [ ! -f "out/${test}-out-${mode}-golden.txt" ]; then
-                echo "out/${test}-out-${mode}-golden.txt is missing"
+                echo "Still waiting for out/${test}-out-${mode}-golden.txt ..."
                 all_files_present=false
                 break 2  # Break out of both 'for' loops to sleep
             fi
