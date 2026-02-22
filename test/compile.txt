@@ -1,0 +1,135 @@
+[  0% 1/307] //hardware/interfaces/audio/aidl/vts:VtsHalAudioCoreTargetTest clan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[  0% 2/307] //hardware/interfaces/audio/aidl/vts:VtsHalAudioCoreTargetTest clan
+stdout:
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:859:47: warning: 'mmap' is deprecated: Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer. [-Wdeprecated-declarations]
+  859 |         if (descriptor.audio.getTag() == Tag::mmap) {
+      |                                               ^
+out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/StreamDescriptor.h:341:27: note: 'mmap' has been explicitly marked deprecated here
+  341 |       mmap __attribute__((deprecated("Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer."))) = 1,
+      |                           ^
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:860:46: warning: 'mmap' is deprecated: Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer. [-Wdeprecated-declarations]
+  860 |             return descriptor.audio.get<Tag::mmap>().burstSizeFrames;
+      |                                              ^
+out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/StreamDescriptor.h:341:27: note: 'mmap' has been explicitly marked deprecated here
+  341 |       mmap __attribute__((deprecated("Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer."))) = 1,
+      |                           ^
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:866:50: warning: 'mmap' is deprecated: Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer. [-Wdeprecated-declarations]
+  866 |         return descriptor.audio.getTag() == Tag::mmap;
+      |                                                  ^
+out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/StreamDescriptor.h:341:27: note: 'mmap' has been explicitly marked deprecated here
+  341 |       mmap __attribute__((deprecated("Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer."))) = 1,
+      |                           ^
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:870:47: warning: 'mmap' is deprecated: Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer. [-Wdeprecated-declarations]
+  870 |         if (descriptor.audio.getTag() == Tag::mmap) {
+      |                                               ^
+out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/StreamDescriptor.h:341:27: note: 'mmap' has been explicitly marked deprecated here
+  341 |       mmap __attribute__((deprecated("Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer."))) = 1,
+      |                           ^
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:871:46: warning: 'mmap' is deprecated: Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer. [-Wdeprecated-declarations]
+  871 |             return descriptor.audio.get<Tag::mmap>().sharedMemory.fd.get();
+      |                                              ^
+out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/StreamDescriptor.h:341:27: note: 'mmap' has been explicitly marked deprecated here
+  341 |       mmap __attribute__((deprecated("Since V4, the client uses 'IStreamCommon.createMmapBuffer' to obtain the MMap shared buffer. The value returned from 'IModule.open{Input|Output}Stream' is not used. Note that since it is not allowed to pass an invalid file descriptor in a parcel, the HAL implementation must still provide some valid file descriptor in this parcelable when opening a stream. However, the returned file descriptor is not used by the client. Instead, the client calls 'IStreamCommon.createMmapBuffer' to obtain the actual shared buffer."))) = 1,
+      |                           ^
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:4910:60: warning: arithmetic between enumeration type 'aidl::android::hardware::audio::core::IStreamIn::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/IStreamIn.h:57:3)' and floating-point type 'float' is deprecated [-Wdeprecated-enum-float-conversion]
+ 4910 |                  IStreamIn::MIC_FIELD_DIMENSION_WIDE_ANGLE / 2.0f,
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~
+external/googletest/googletest/include/gtest/gtest.h:2059:32: note: expanded from macro 'EXPECT_NO_FATAL_FAILURE'
+ 2059 |   GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
+      |                                ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1465:52: note: expanded from macro 'GTEST_TEST_NO_FATAL_FAILURE_'
+ 1465 |     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);      \
+      |                                                    ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1314:5: note: expanded from macro 'GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_'
+ 1314 |     statement;                                                    \
+      |     ^~~~~~~~~
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:4912:58: warning: arithmetic between enumeration type 'aidl::android::hardware::audio::core::IStreamIn::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/IStreamIn.h:59:3)' and floating-point type 'float' is deprecated [-Wdeprecated-enum-float-conversion]
+ 4912 |                  IStreamIn::MIC_FIELD_DIMENSION_MAX_ZOOM / 2.0f,
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~
+external/googletest/googletest/include/gtest/gtest.h:2059:32: note: expanded from macro 'EXPECT_NO_FATAL_FAILURE'
+ 2059 |   GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
+      |                                ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1465:52: note: expanded from macro 'GTEST_TEST_NO_FATAL_FAILURE_'
+ 1465 |     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);      \
+      |                                                    ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1314:5: note: expanded from macro 'GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_'
+ 1314 |     statement;                                                    \
+      |     ^~~~~~~~~
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:4916:60: warning: arithmetic between enumeration type 'aidl::android::hardware::audio::core::IStreamIn::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/IStreamIn.h:57:3)' and floating-point type 'float' is deprecated [-Wdeprecated-enum-float-conversion]
+ 4916 |                  IStreamIn::MIC_FIELD_DIMENSION_WIDE_ANGLE * 1.1f,
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~
+external/googletest/googletest/include/gtest/gtest.h:2059:32: note: expanded from macro 'EXPECT_NO_FATAL_FAILURE'
+ 2059 |   GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
+      |                                ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1465:52: note: expanded from macro 'GTEST_TEST_NO_FATAL_FAILURE_'
+ 1465 |     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);      \
+      |                                                    ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1314:5: note: expanded from macro 'GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_'
+ 1314 |     statement;                                                    \
+      |     ^~~~~~~~~
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:4917:58: warning: arithmetic between enumeration type 'aidl::android::hardware::audio::core::IStreamIn::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/IStreamIn.h:59:3)' and floating-point type 'float' is deprecated [-Wdeprecated-enum-float-conversion]
+ 4917 |                  IStreamIn::MIC_FIELD_DIMENSION_MAX_ZOOM * 1.1f, -INFINITY, INFINITY, -NAN, NAN},
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~
+external/googletest/googletest/include/gtest/gtest.h:2059:32: note: expanded from macro 'EXPECT_NO_FATAL_FAILURE'
+ 2059 |   GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
+      |                                ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1465:52: note: expanded from macro 'GTEST_TEST_NO_FATAL_FAILURE_'
+ 1465 |     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);      \
+      |                                                    ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1314:5: note: expanded from macro 'GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_'
+ 1314 |     statement;                                                    \
+      |     ^~~~~~~~~
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:5332:83: warning: arithmetic between enumeration type 'aidl::android::hardware::audio::core::IStreamOut::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/IStreamOut.h:53:3)' and floating-point type 'float' is deprecated [-Wdeprecated-enum-float-conversion]
+ 5332 |                                       IStreamOut::AUDIO_DESCRIPTION_MIX_LEVEL_MAX * 1.1f},
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~
+external/googletest/googletest/include/gtest/gtest.h:2059:32: note: expanded from macro 'EXPECT_NO_FATAL_FAILURE'
+ 2059 |   GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
+      |                                ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1465:52: note: expanded from macro 'GTEST_TEST_NO_FATAL_FAILURE_'
+ 1465 |     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);      \
+      |                                                    ^~~~~~~~~
+external/googletest/googletest/include/gtest/internal/gtest-internal.h:1314:5: note: expanded from macro 'GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_'
+ 1314 |     statement;                                                    \
+      |     ^~~~~~~~~
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:5640:32: warning: conditional expression between enumeration type 'aidl::android::hardware::audio::core::IStreamOut::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/IStreamOut.h:52:3)' and floating-point type 'float' is deprecated [-Wdeprecated-enum-float-conversion]
+ 5640 |             return (v == 0.0f) ? IStreamOut::HW_VOLUME_MAX : v * 0.5f;
+      |                                ^ ~~~~~~~~~~~~~~~~~~~~~~~~~   ~~~~~~~~
+In file included from hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:39:
+In file included from system/libvintf/libaidlvintf_test_helper/include/aidl/Gtest.h:18:
+external/googletest/googletest/include/gtest/gtest.h:1394:11: warning: comparison of floating-point type 'float' with enumeration type 'aidl::android::hardware::audio::core::sounddose::ISoundDose::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core.sounddose-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/sounddose/ISoundDose.h:138:3)' is deprecated [-Wdeprecated-enum-float-conversion]
+ 1394 |   if (lhs == rhs) {
+      |       ~~~ ^  ~~~
+external/googletest/googletest/include/gtest/gtest.h:1413:12: note: in instantiation of function template specialization 'testing::internal::CmpHelperEQ<float, aidl::android::hardware::audio::core::sounddose::ISoundDose::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core.sounddose-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/sounddose/ISoundDose.h:138:3)>' requested here
+ 1413 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ^
+hardware/interfaces/audio/aidl/vts/VtsHalAudioCoreModuleTargetTest.cpp:6305:5: note: in instantiation of function template specialization 'testing::internal::EqHelper::Compare<float, aidl::android::hardware::audio::core::sounddose::ISoundDose::(unnamed enum at out/soong/.intermediates/hardware/interfaces/audio/aidl/android.hardware.audio.core.sounddose-V4-ndk-source/gen/include/aidl/android/hardware/audio/core/sounddose/ISoundDose.h:138:3), nullptr>' requested here
+ 6305 |     EXPECT_EQ(rs2Value, ISoundDose::DEFAULT_MAX_RS2);
+      |     ^
+external/googletest/googletest/include/gtest/gtest.h:1885:54: note: expanded from macro 'EXPECT_EQ'
+ 1885 |   EXPECT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
+      |                                                      ^
+external/googletest/googletest/include/gtest/gtest_pred_impl.h:144:23: note: expanded from macro 'EXPECT_PRED_FORMAT2'
+  144 |   GTEST_PRED_FORMAT2_(pred_format, v1, v2, GTEST_NONFATAL_FAILURE_)
+      |                       ^
+external/googletest/googletest/include/gtest/gtest_pred_impl.h:134:17: note: expanded from macro 'GTEST_PRED_FORMAT2_'
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+      |                 ^
+external/googletest/googletest/include/gtest/gtest_pred_impl.h:79:52: note: expanded from macro 'GTEST_ASSERT_'
+   79 |   if (const ::testing::AssertionResult gtest_ar = (expression)) \
+      |                                                    ^
+12 warnings generated.
