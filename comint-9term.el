@@ -158,13 +158,15 @@
              (let ((gap (- comint-9term-virtual-col (current-column))))
                (when (> gap 0) (insert (make-string gap ?\s))))
              (setq comint-9term-virtual-col nil))
+          (while (and (not (eobp)) (get-text-property (point) 'invisible))
+            (delete-char 1))
           (if (and (not (eobp)) (not (eq (following-char) ?\n)))
               (delete-char 1))
           (insert (char-to-string c))))
         (set-marker pm (point))))))
 
 (defun comint-9term-filter (string)
-  (condition-case nil
+  (condition-case err
       (let ((proc (get-buffer-process (current-buffer))))
         (if (not proc)
             string
@@ -198,7 +200,9 @@
                        ((memq char '(?A ?B ?C ?D ?F ?G ?H ?f ?J ?K ?r))
                         (comint-9term-handle-csi char (comint-9term-parse-params params (if (memq char '(?J ?K)) 0 1))))
                        ((eq char ?m)
-                        (comint-9term-insert-and-overwrite (match-string 0 string))))))
+                        (let ((start (point)))
+                          (insert (match-string 0 string))
+                          (put-text-property start (point) 'invisible t))))))
                    (is-sc
                     (let ((esc-char (aref (match-string 4 string) 0)))
                       (cond
@@ -233,7 +237,14 @@
   (make-local-variable 'comint-9term-lines-below-scroll)
   (make-local-variable 'comint-9term-virtual-col)
   (make-local-variable 'comint-9term-partial-seq)
-  (add-hook 'comint-preoutput-filter-functions 'comint-9term-filter nil t))
+  (make-local-variable 'comint-9term-height-override)
+  (add-hook 'comint-preoutput-filter-functions 'comint-9term-filter nil t)
+  
+  (add-hook 'after-change-major-mode-hook
+            (lambda ()
+              (setq-local comint-output-filter-functions
+                          (remq 'ansi-color-process-output comint-output-filter-functions)))
+            nil t))
 
 (add-hook 'comint-mode-hook 'comint-9term-setup)
 (add-hook 'compilation-shell-minor-mode-hook 'comint-9term-setup)
