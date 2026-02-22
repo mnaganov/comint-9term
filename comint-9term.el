@@ -9,6 +9,7 @@
 (defvar-local comint-9term-virtual-col nil)
 (defvar-local comint-9term-partial-seq "")
 (defvar-local comint-9term-height-override nil)
+(defvar-local comint-9term-origin nil)
 
 (defun comint-9term-parse-params (params-str &optional default)
   (setq default (or default 1))
@@ -26,6 +27,12 @@
           (condition-case nil
               (frame-height)
             (error 24))))))
+
+(defun comint-9term-start-line ()
+  (let ((total (line-number-at-pos (point-max)))
+        (height (comint-9term-max-height))
+        (origin (or comint-9term-origin 1)))
+    (max (1- origin) (if (> total height) (- total height) 0))))
 
 (defun comint-9term-handle-csi (char params)
   (let ((n (or (nth 0 params) 1))
@@ -71,17 +78,10 @@
           (setq comint-9term-virtual-col nil))))
      ((or (eq char ?H) (eq char ?f)) ; CUP / HVP - Cursor Position
       (setq n (min n max-h))
-      (if comint-9term-scroll-bottom
-          (let* ((height max-h)
-                 (total-lines (line-number-at-pos (point-max)))
-                 (start-line (if (> total-lines height) (- total-lines height) 0))
-                 (target-line (+ start-line (max 1 n))))
-            (goto-char (point-min))
-            (let ((lines-left (forward-line (1- (max 1 target-line)))))
-              (when (> lines-left 0)
-                (insert (make-string lines-left ?\n)))))
+      (let* ((start-line (comint-9term-start-line))
+             (target-line (+ start-line (max 1 n))))
         (goto-char (point-min))
-        (let ((lines-left (forward-line (1- (max 1 n)))))
+        (let ((lines-left (forward-line (1- (max 1 target-line)))))
           (when (> lines-left 0)
             (insert (make-string lines-left ?\n)))))
       (let ((target (1- (max 1 m))))
@@ -131,9 +131,7 @@
           (setq comint-9term-virtual-col nil)
           (let* ((should-scroll
                   (and (> comint-9term-lines-below-scroll 0)
-                       (let* ((total (line-number-at-pos (point-max)))
-                              (height (comint-9term-max-height))
-                              (start (if (> total height) (- total height) 0))
+                       (let* ((start (comint-9term-start-line))
                               (current (line-number-at-pos)))
                          (>= (- current start) comint-9term-scroll-bottom)))))
             (if should-scroll
@@ -178,6 +176,12 @@
               ;; Check for LINES= override
               (when (string-match "LINES=\\([0-9]+\\)" string)
                 (setq comint-9term-height-override (string-to-number (match-string 1 string))))
+              
+              ;; Initialize origin if needed
+              (unless comint-9term-origin
+                (when (string-match "\033" string)
+                  (setq comint-9term-origin (1- (line-number-at-pos (process-mark proc))))))
+
               ;; Prepend any partial sequence from previous run
               (when (and comint-9term-partial-seq (> (length comint-9term-partial-seq) 0))
                 (setq string (concat comint-9term-partial-seq string))
