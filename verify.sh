@@ -87,6 +87,7 @@ verify_screen_gen() {
 
         local cols=$(echo "$stty_conf" | awk '{print $4}')
         local rows=$(echo "$stty_conf" | awk '{print $2}')
+        local abs_golden_file="$(pwd)/${golden_file}"
 
         echo "Generating golden master for $test_name ($mode) using dims: $stty_conf"
         screen -c test/screenrc -d -m -S "$session_name" -L -Logfile "${golden_file}.screen.log" bash -c \
@@ -96,7 +97,11 @@ verify_screen_gen() {
              screen -X clear; \
              ${script_path}; \
              sleep 1; \
-             screen -X hardcopy -h ${golden_file}; \
+             screen -X hardcopy -h ${abs_golden_file} > out/hardcopy_error.log 2>&1; \
+             sleep 5; \
+             if [ ! -s "${abs_golden_file}" ]; then \
+                 screen -X hardcopy ${abs_golden_file}; \
+             fi; \
              echo \"${golden_file} done\";"
     done
 }

@@ -17,9 +17,15 @@
                           (split-string params-str ";"))))
       params)))
 
+(defun comint-9term-max-height ()
+  (condition-case nil
+      (frame-height)
+    (error 24)))
+
 (defun comint-9term-handle-csi (char params)
   (let ((n (or (nth 0 params) 1))
-        (m (or (nth 1 params) 1)))
+        (m (or (nth 1 params) 1))
+        (max-h (comint-9term-max-height)))
     (cond
      ((eq char ?A) ; CUU - Cursor Up
       (let ((col (or comint-9term-virtual-col (current-column))))
@@ -59,6 +65,7 @@
             (setq comint-9term-virtual-col target)
           (setq comint-9term-virtual-col nil))))
      ((or (eq char ?H) (eq char ?f)) ; CUP / HVP - Cursor Position
+      (setq n (min n max-h))
       (if comint-9term-scroll-bottom
           (let* ((height (1+ comint-9term-scroll-bottom))
                  (total-lines (line-number-at-pos (point-max)))
@@ -103,6 +110,7 @@
      ((eq char ?r) ; DECSTBM - Set Scrolling Region
       (let ((bottom (nth 1 params)))
         (when (and bottom (> n 0))
+          (setq bottom (min bottom max-h))
           (setq comint-9term-scroll-bottom bottom)
           (setq comint-9term-lines-below-scroll 1)))))))
 
