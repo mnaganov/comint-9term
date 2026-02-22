@@ -200,9 +200,11 @@
                        ((memq char '(?A ?B ?C ?D ?F ?G ?H ?f ?J ?K ?r))
                         (comint-9term-handle-csi char (comint-9term-parse-params params (if (memq char '(?J ?K)) 0 1))))
                        ((eq char ?m)
-                        (let ((start (point)))
-                          (insert (match-string 0 string))
-                          (put-text-property start (point) 'invisible t))))))
+                        (let ((start (point))
+                              (sgr (match-string 0 string)))
+                          (insert sgr)
+                          (when (fboundp 'ansi-color-apply-on-region)
+                            (ansi-color-apply-on-region start (point))))))))
                    (is-sc
                     (let ((esc-char (aref (match-string 4 string) 0)))
                       (cond
@@ -225,9 +227,7 @@
                   (setq comint-9term-partial-seq "")))
 
               (setq min-p (min min-p (point)))
-              (set-marker (process-mark proc) (point))
-              (when (fboundp 'ansi-color-apply-on-region)
-                (ansi-color-apply-on-region (min min-p (process-mark proc)) (point-max)))))))
+              (set-marker (process-mark proc) (point))))))
     (error (message "Filter error: %S" err) nil))
   "")
 
