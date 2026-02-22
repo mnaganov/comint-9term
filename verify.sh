@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Save original terminal size
+read -r orig_rows orig_cols < <(stty size)
+
+# Function to restore terminal size
+restore_terminal() {
+    if [ -n "$orig_rows" ] && [ -n "$orig_cols" ]; then
+        stty rows "$orig_rows" cols "$orig_cols"
+    fi
+}
+
+# Trap exit to restore terminal
+trap restore_terminal EXIT
+
 # Terminal size matches test/build.*
 export LINES=24
 export COLUMNS=80
