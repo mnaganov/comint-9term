@@ -3,7 +3,7 @@
 # Configuration
 ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
-SIMPLE_TESTS=("ansi-seq")
+SIMPLE_TESTS=("ansi-seq" "password-test")
 # Tests that require screen execution to generate a golden master for comparison
 SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70")
 #SCREEN_TESTS=("apt-prog")
@@ -25,7 +25,7 @@ run_emacs_test() {
     echo "Running Emacs test: $test_name"
     echo "$test_name" > out/current-script
 
-    timeout 10s emacs -nw -q -l test/emacs.el
+    timeout 30s emacs -nw -q -l test/emacs.el
     local emacs_status=$?
 
     if [ -f "$ERRORS_FILE" ]; then

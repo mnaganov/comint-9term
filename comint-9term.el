@@ -165,6 +165,8 @@
                 (setq string (concat comint-9term-partial-seq string))
                 (setq comint-9term-partial-seq ""))
 
+              (comint-watch-for-password-prompt string)
+
               (while (string-match "\033\\(\\[\\([?0-9;]*\\)\\([A-Za-z]\\)\\|]\\(?:.*?\\)\007\\|\\([78]\\)\\)" string start)
                 (let* ((pre-text (substring string start (match-beginning 0)))
                        (is-csi (match-beginning 2))
@@ -206,7 +208,7 @@
               (set-marker (process-mark proc) (point))
               (when (fboundp 'ansi-color-apply-on-region)
                 (ansi-color-apply-on-region (min min-p (process-mark proc)) (point-max)))))))
-    (error nil))
+    (error (message "Filter error: %S" err) nil))
   "")
 
 (defun comint-9term-setup ()

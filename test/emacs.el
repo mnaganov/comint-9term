@@ -4,180 +4,137 @@
 (if (fboundp 'tooltip-mode) (tooltip-mode -1))
 (require 'ansi-color)
 
+(defvar my-password-sent nil)
+
+(defun my-enter-password-in-minibuffer ()
+  "Enters password into active minibuffer if present."
+  (when (active-minibuffer-window)
+    (with-current-buffer (window-buffer (active-minibuffer-window))
+      (insert "secretpass")
+      (exit-minibuffer))
+    (setq my-password-sent t)))
+
+(defun my-wait-for-completion (proc output-file)
+  "Wait for completion marker, handling password prompts if needed."
+  (let ((start-time (float-time))
+        (found nil))
+    (setq my-password-sent nil)
+    ;; Start timer to enter password if prompted via minibuffer (success case)
+    (run-with-timer 1 1 'my-enter-password-in-minibuffer)
+
+    (while (and (not found) (< (- (float-time) start-time) 10.0))
+      ;; Wait for output. If send-invisible is called, this blocks until timer fires.
+      (if (and proc (process-live-p proc))
+          (accept-process-output proc 0.5)
+        (sleep-for 0.5))
+
+      (save-excursion
+        (goto-char (point-min))
+        (if (search-forward "=== Test Suite Complete ===" nil t)
+            (setq found t)
+          ;; Check for password prompt if not handled yet
+          (when (and (not my-password-sent)
+                     (search-forward "password for user:" nil t))
+            ;; If found, wait a bit to see if timer handles it (i.e. if send-invisible was active)
+            (sleep-for 1.5)
+            ;; If still not sent, assume send-invisible was NOT called (failure case)
+            ;; Send manually to the buffer
+            (unless my-password-sent
+              (goto-char (point-max))
+              (if (process-live-p proc)
+                  (let ((inhibit-read-only t))
+                    (insert "secretpass")
+                    (comint-send-input))
+                ;; Process dead, likely compilation mode non-interactive.
+                ;; Just skip input, buffer will match golden (no password).
+                nil)
+              (setq my-password-sent t))))))
+
+    (cancel-function-timers 'my-enter-password-in-minibuffer)
+
+    (if found
+        (progn
+          (goto-char (point-min))
+          (search-forward "===")
+          (goto-char (match-beginning 0))
+          (push-mark (point) nil t)
+          (goto-char (point-max))
+          (search-backward "===")
+          (forward-line 1)
+          (write-region (mark) (point) output-file))
+      ;; If timed out or crashed, save everything
+      (write-region (point-min) (point-max) output-file))))
+
 (defun my-run-test-in-shell (test-file output-file)
-  "Runs test.sh in a shell, waits for completion, saves output, and cleans up."
+  "Runs test-file in a shell, handles input, saves output."
   (interactive)
   (let* ((buf-name "*my-test-shell*")
          (buf (get-buffer-create buf-name)))
-
-    ;; Opens a shell buffer
     (pop-to-buffer buf)
     (shell buf)
-
     (let ((proc (get-buffer-process buf)))
-      ;; Prevent Emacs from asking for confirmation when killing the buffer later
       (set-process-query-on-exit-flag proc nil)
-
-      ;; Wait briefly for the shell prompt to appear before typing
       (accept-process-output proc 0.5)
-
-      ;; Executes script `test.sh`
       (goto-char (point-max))
       (insert test-file)
       (comint-send-input)
-
-      ;; Waits until the script displays `=== Test Suite Complete ===`
-      ;; accept-process-output ensures Emacs doesn't freeze while waiting
-      (let ((start-time (float-time))
-            (found nil))
-        ;; Wait while string not found AND less than 5 seconds have passed
-        (while (and (not (setq found (save-excursion
-                                       (goto-char (point-min))
-                                       (search-forward "=== Test Suite Complete ===" nil t))))
-                    (< (- (float-time) start-time) 5.0))
-          (accept-process-output proc 0.5))
-
-        (if found
-            (progn
-              ;; Jumps to the beginning of the buffer
-              (goto-char (point-min))
-
-              ;; Finds `===` and starts region selection from the beginning of this substring
-              (search-forward "===")
-              (goto-char (match-beginning 0))
-              (push-mark (point) nil t) ; Sets the mark and activates the region
-
-              ;; Jumps to the end of the buffer
-              (goto-char (point-max))
-
-              ;; Finds `===` and sets the cursor on the line after it
-              (search-backward "===")
-              (forward-line 1)
-
-              ;; Saves the selected region into a file
-              (write-region (mark) (point) output-file))
-          ;; If the script did not finish, just save the entire buffer contents
-          (write-region (point-min) (point-max) output-file)))
-
-      ;; Closes the shell buffer
+      (my-wait-for-completion proc output-file)
       (kill-buffer buf))))
 
 (defun my-run-test-compile (test-file output-file)
-  "Runs test.sh via compile, waits for completion, saves output, and cleans up."
+  "Runs test-file via compile, handles input, saves output."
   (interactive)
-
-  ;; Executes script `test.sh` via compile with comint argument set to t
   (compile test-file t)
-
-  ;; Get the compilation buffer (Emacs defaults to "*compilation*")
-  (let* ((buf (get-buffer "*compilation*"))
-         (proc (get-buffer-process buf)))
-
-    ;; Execute the following commands specifically inside the compilation buffer
-    (with-current-buffer buf
-
-      ;; Prevent Emacs from asking for confirmation when killing the buffer later
-      (when proc
-        (set-process-query-on-exit-flag proc nil))
-
-      ;; Waits until the script displays `=== Test Suite Complete ===`
-      (let ((start-time (float-time))
-            (found nil))
-
-        (while (and (not (setq found (save-excursion
-                                       (goto-char (point-min))
-                                       (search-forward "=== Test Suite Complete ===" nil t))))
-                    (< (- (float-time) start-time) 5.0))
-          ;; Use accept-process-output to wait if process is running,
-          ;; otherwise sleep briefly to avoid a tight CPU loop if the process ends instantly
-          (if (and proc (process-live-p proc))
-              (accept-process-output proc 0.5)
-            (sleep-for 0.5)))
-
-        (if found
-            (progn
-              ;; Jumps to the beginning of the buffer
-              (goto-char (point-min))
-
-              ;; Finds `===` and starts region selection from the beginning of this substring
-              (search-forward "===")
-              (goto-char (match-beginning 0))
-              (push-mark (point) nil t) ; Sets the mark and activates the region
-
-              ;; Jumps to the end of the buffer
-              (goto-char (point-max))
-
-              ;; Finds `===` and sets the cursor on the line after it
-              (search-backward "===")
-              (forward-line 1)
-
-              ;; Saves the selected region into a file
-              (write-region (mark) (point) output-file))
-          ;; If the script did not finish, just save the entire buffer contents
-          (write-region (point-min) (point-max) output-file)))
-
-      ;; Closes the compilation buffer
-      (kill-buffer buf))))
+  (let* ((buf (get-buffer "*compilation*")))
+    (if (not buf)
+        nil
+      (let ((proc (get-buffer-process buf)))
+        (with-current-buffer buf
+          (when proc (set-process-query-on-exit-flag proc nil))
+          (my-wait-for-completion proc output-file)
+          (kill-buffer buf))))))
 
 (defun load-script-and-log-errors (script-file log-file)
-  "Load SCRIPT-FILE and write any errors to LOG-FILE."
   (interactive "fScript to load: \nFLog file: ")
   (condition-case err
       (progn
-        ;; 'load' arguments: file, noerror (nil means throw error), nomessage, nosuffix
         (load script-file nil nil t)
         (message "Successfully loaded: %s" script-file)
         t)
-
-    ;; Catch all errors inheriting from the 'error' symbol
     (error
      (let* ((timestamp (format-time-string "[%Y-%m-%d %H:%M:%S]"))
-            ;; Extract and format the human-readable error message
             (err-string (error-message-string err))
             (log-message (format "%s Error loading '%s': %s\n"
                                  timestamp script-file err-string)))
-
-       ;; Write the formatted message to the log file (appending it)
        (write-region log-message nil log-file 'append)
        (message "Failed to load '%s'. Error written to '%s'." script-file log-file)
        nil))))
 
 (defun log-command-errors-to-file (data context caller)
-  "Log interactive command errors to a file, then perform default behavior.
-DATA is the error object, CONTEXT is context info, CALLER is the command."
   (let* ((log-file "out/elisp-errors.txt")
          (timestamp (format-time-string "[%Y-%m-%d %H:%M:%S]"))
          (err-string (error-message-string data))
          (caller-name (if caller (symbol-name caller) "unknown command"))
          (log-message (format "%s Error in '%s': %s\n"
                               timestamp caller-name err-string)))
-
-    ;; Write to the log file
     (write-region log-message nil log-file 'append)
-
-    ;; Fall back to the default Emacs behavior (prints to *Messages*)
     (command-error-default-function data context caller)))
 
-;; Activate the global error logger
 (setq command-error-function #'log-command-errors-to-file)
 
 (make-directory "out" t)
 
 (let* ((script-file (expand-file-name "out/current-script"))
-       ;; Load the script name once into a variable.
-       ;; If file doesn't exist, 'script' will be nil.
        (script (when (file-exists-p script-file)
                  (with-temp-buffer
                    (insert-file-contents script-file)
                    (string-trim (buffer-string))))))
   (unwind-protect
-      ;; We check 'script' first to ensure we actually have a name before running tests
       (when (and script
                  (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt"))
         (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
         (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))
     (progn
-      ;; Only save messages if we successfully read the script name
       (when script
         (with-current-buffer "*Messages*"
           (write-region (point-min) (point-max) (concat "out/" script "-emacs-messages.txt"))))
