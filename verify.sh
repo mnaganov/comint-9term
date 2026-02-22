@@ -8,7 +8,7 @@ stty rows 24 cols 80
 # Configuration
 ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
-SIMPLE_TESTS=("ansi-seq" "password-test" "build")
+SIMPLE_TESTS=("ansi-seq" "password-test" "build" "compile")
 # Tests that require screen execution to generate a golden master for comparison
 SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70")
 # All tests combined
