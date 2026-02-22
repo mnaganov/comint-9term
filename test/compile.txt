@@ -1,3 +1,4 @@
+=== Compile Test Suite ===
 [  0% 1/307] //hardware/interfaces/audio/aidl/vts:VtsHalAudioCoreTargetTest clan
 
 
@@ -133,3 +134,4 @@ external/googletest/googletest/include/gtest/gtest_pred_impl.h:79:52: note: expa
    79 |   if (const ::testing::AssertionResult gtest_ar = (expression)) \
       |                                                    ^
 12 warnings generated.
+=== Test Suite Complete ===
