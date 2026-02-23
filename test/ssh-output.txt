@@ -1,0 +1,20 @@
+=== SSH Login Test Suite ===
+Welcome to
+     _
+   ." ".           _     _
+  / o o \     __ _| |   (_)_ __  _   ___  __
+  |/\v/\|    / _` | |   | | '_ \| | | \ \/ /
+ /|     |\  | (_| | |___| | | | | |_| |>  <
+ \|_^_^_|/   \__, |_____|_|_| |_|\__,_/_/\_\
+             |___/
+Linux xxx xxx #1 SMP PREEMPT_DYNAMIC Debian xxx
+FIX self-repair check results:
+[PASS] gLinux Release: xxx | Subscribed to track stable
+[PASS] Limited Internet: This xxx has unrestricted internet access
+[PASS] Limited Root: User xxx has root access to this machine
+[PASS] Trust Tier: Your machine is in the xxx tier
+[WARN] Backup Git Repos: Not backing up .git directories see http://example.com
+See `fix help config` for how to hide check results, e.g.: sudo fix config --visibility never -c ID
+Tired of losing work to dropped sessions? go/session-persistence
+Last login: XXX from XXX
+=== Test Suite Complete ===

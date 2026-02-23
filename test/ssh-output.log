@@ -1,0 +1,18 @@
+Welcome to
+     [34m_[39m
+   [34m." ".[39m           _     _
+  [34m/[39m o o [34m\[39m     __ _| |   (_)_ __  _   ___  __
+  [34m|[39m/[33m\v/[39m\[34m|[39m    / _` | |   | | '_ \| | | \ \/ /
+ [34m/[39m|     |[34m\[39m  | (_| | |___| | | | | |_| |>  <
+ [34m\[39m|_[33m^[39m_[33m^[39m_|[34m/[39m   \__, |_____|_|_| |_|\__,_/_/\_\
+             |___/
+Linux xxx xxx #1 SMP PREEMPT_DYNAMIC Debian xxx
+FIX self-repair check results:
+[32m[[0m[32mPASS[0m[32m][0m [1mgLinux Release[0m: xxx | Subscribed to track stable
+[32m[[0m[32mPASS[0m[32m][0m [1mLimited Internet[0m: This xxx has unrestricted internet access
+[32m[[0m[32mPASS[0m[32m][0m [1mLimited Root[0m: User xxx has root access to this machine
+[32m[[0m[32mPASS[0m[32m][0m [1mTrust Tier[0m: Your machine is in the xxx tier
+[33m[[0m[33mWARN[0m[33m][0m [1mBackup Git Repos[0m: Not backing up .git directories see ]8;;http://example.com\http://example.com]8;;\
+See `fix help config` for how to hide check results, e.g.: sudo fix config --visibility never -c ID
+Tired of losing work to dropped sessions? go/session-persistence
+Last login: XXX from XXX
