@@ -21,9 +21,9 @@ stty rows 24 cols 80
 # Configuration
 ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
-SIMPLE_TESTS=("ansi-seq" "password-test" "build" "compile")
+SIMPLE_TESTS=("ansi-seq" "password-test")
 # Tests that require screen execution to generate a golden master for comparison
-SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70")
+SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70" "build" "compile")
 # All tests combined
 ALL_TESTS=("${SIMPLE_TESTS[@]}" "${SCREEN_TESTS[@]}")
 
@@ -192,7 +192,7 @@ for test in "${SCREEN_TESTS[@]}"; do
 
         # Trim the golden file in-place:
         # Remove everything before the start line
-        sed -i -n '/=== Apt Progress Bar Test Suite ===/,$p' "$golden_file"
+        sed -i -n '/=== .* Test Suite ===/,$p' "$golden_file"
         # Quit processing immediately after printing "=== Test Suite Complete ==="
         sed -i '/=== Test Suite Complete ===/q' "$golden_file"
 
