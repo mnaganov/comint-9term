@@ -13,10 +13,10 @@ restore_terminal() {
 # Trap exit to restore terminal
 trap restore_terminal EXIT
 
-# Terminal size matches test/build.*
-export LINES=24
-export COLUMNS=80
-stty rows 24 cols 80
+# May be used for enforcing terminal size for tests.
+# export LINES=24
+# export COLUMNS=80
+# stty rows 24 cols 80
 
 # Configuration
 ERRORS_FILE="out/elisp-errors.txt"
