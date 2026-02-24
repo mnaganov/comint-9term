@@ -12,6 +12,10 @@
 (defvar-local comint-9term-origin nil)
 (defvar-local comint-9term-term-height nil)
 
+(defconst comint-9term-control-seq-regexp
+  "\e\\(\\[\\([?0-9;]*\\)\\([A-Za-z]\\)\\|]\\(?:.*?\\)\\(?:\a\\|\e\\\\\\)\\|\\([78]\\)\\)"
+  "Regexp matching supported ANSI escape sequences.")
+
 (defun comint-9term-parse-params (params-str &optional default)
   (setq default (or default 1))
   (if (or (not params-str) (string= params-str ""))
@@ -36,6 +40,21 @@
         (origin (or comint-9term-origin 1)))
     (max (1- origin) (if (> total height) (- total height) 0))))
 
+(defun comint-9term-pad-to-virtual-col ()
+  "Insert spaces if virtual column is set, filling the gap."
+  (when comint-9term-virtual-col
+    (let ((gap (- comint-9term-virtual-col (current-column))))
+      (when (> gap 0)
+        (insert (make-string gap ?\s))))
+    (setq comint-9term-virtual-col nil)))
+
+(defun comint-9term-move-to-column (col)
+  "Move to column COL, setting virtual column if target is unreachable."
+  (move-to-column col nil)
+  (if (< (current-column) col)
+      (setq comint-9term-virtual-col col)
+    (setq comint-9term-virtual-col nil)))
+
 (defun comint-9term-handle-csi (char params)
   (let ((n (or (nth 0 params) 1))
         (m (or (nth 1 params) 1))
@@ -44,40 +63,24 @@
      ((eq char ?A) ; CUU - Cursor Up
       (let ((col (or comint-9term-virtual-col (current-column))))
         (forward-line (- (max 1 n)))
-        (move-to-column col nil)
-        (if (< (current-column) col)
-            (setq comint-9term-virtual-col col)
-          (setq comint-9term-virtual-col nil))))
+        (comint-9term-move-to-column col)))
      ((eq char ?B) ; CUD - Cursor Down
       (let ((col (or comint-9term-virtual-col (current-column))))
         (forward-line (max 1 n))
-        (move-to-column col nil)
-        (if (< (current-column) col)
-            (setq comint-9term-virtual-col col)
-          (setq comint-9term-virtual-col nil))))
+        (comint-9term-move-to-column col)))
      ((eq char ?C) ; CUF - Cursor Forward
       (let ((curr (or comint-9term-virtual-col (current-column))))
-        (let ((target (+ curr (max 1 n))))
-          (move-to-column target nil)
-          (if (< (current-column) target)
-              (setq comint-9term-virtual-col target)
-            (setq comint-9term-virtual-col nil)))))
+        (comint-9term-move-to-column (+ curr (max 1 n)))))
      ((eq char ?D) ; CUB - Cursor Backward
       (let ((curr (or comint-9term-virtual-col (current-column))))
-        (let ((target (max 0 (- curr (max 1 n)))))
-          (setq comint-9term-virtual-col nil)
-          (move-to-column target nil))))
+        (comint-9term-move-to-column (max 0 (- curr (max 1 n))))))
      ((eq char ?F) ; CPL - Cursor Previous Line
       (let ((inhibit-field-text-motion t))
         (forward-line (- (max 1 n)))
         (beginning-of-line)
         (setq comint-9term-virtual-col nil)))
      ((eq char ?G) ; CHA - Cursor Horizontal Absolute
-      (let ((target (1- (max 1 n))))
-        (move-to-column target nil)
-        (if (< (current-column) target)
-            (setq comint-9term-virtual-col target)
-          (setq comint-9term-virtual-col nil))))
+      (comint-9term-move-to-column (1- (max 1 n))))
      ((or (eq char ?H) (eq char ?f)) ; CUP / HVP - Cursor Position
       (setq n (min n max-h))
       (let* ((start-line (comint-9term-start-line))
@@ -86,11 +89,7 @@
         (let ((lines-left (forward-line (1- (max 1 target-line)))))
           (when (> lines-left 0)
             (insert (make-string lines-left ?\n)))))
-      (let ((target (1- (max 1 m))))
-        (move-to-column target nil)
-        (if (< (current-column) target)
-            (setq comint-9term-virtual-col target)
-          (setq comint-9term-virtual-col nil))))
+      (comint-9term-move-to-column (1- (max 1 m))))
      ((eq char ?J) ; ED - Erase in Display
       (setq comint-9term-virtual-col nil)
       (cond
@@ -101,12 +100,9 @@
       (let ((beg (line-beginning-position))
             (end (line-end-position))
             (cur (point)))
-        (when comint-9term-virtual-col
-           (let ((gap (- comint-9term-virtual-col (current-column))))
-             (when (> gap 0) (insert (make-string gap ?\s))))
-           (setq comint-9term-virtual-col nil)
-           (setq cur (point))
-           (setq end (line-end-position)))
+        (comint-9term-pad-to-virtual-col)
+        (setq cur (point))
+        (setq end (line-end-position))
         (cond
          ((= n 0) (delete-region cur end))
          ((= n 1)
@@ -149,15 +145,10 @@
          ((eq c ?\b)
           (if comint-9term-virtual-col
               (let ((new-col (max 0 (1- comint-9term-virtual-col))))
-                (if (<= new-col (current-column))
-                    (progn (setq comint-9term-virtual-col nil) (move-to-column new-col))
-                  (setq comint-9term-virtual-col new-col)))
+                (comint-9term-move-to-column new-col))
             (if (> (current-column) 0) (backward-char 1))))
          (t
-          (when comint-9term-virtual-col
-             (let ((gap (- comint-9term-virtual-col (current-column))))
-               (when (> gap 0) (insert (make-string gap ?\s))))
-             (setq comint-9term-virtual-col nil))
+          (comint-9term-pad-to-virtual-col)
           (while (and (not (eobp)) (get-text-property (point) 'invisible))
             (delete-char 1))
           (if (and (not (eobp)) (not (eq (following-char) ?\n)))
@@ -181,7 +172,7 @@
               
               ;; Initialize origin if needed
               (unless comint-9term-origin
-                (when (string-match "\033" string)
+                (when (string-match "\e" string)
                   (setq comint-9term-origin (1- (line-number-at-pos (process-mark proc))))))
 
               ;; Prepend any partial sequence from previous run
@@ -191,7 +182,7 @@
 
               (comint-watch-for-password-prompt string)
 
-              (while (string-match "\033\\(\\[\\([?0-9;]*\\)\\([A-Za-z]\\)\\|]\\(?:.*?\\)\\(?:\007\\|\033\\\\\\)\\|\\([78]\\)\\)" string start)
+              (while (string-match comint-9term-control-seq-regexp string start)
                 (let* ((pre-text (substring string start (match-beginning 0)))
                        (is-csi (match-beginning 2))
                        (is-sc (match-beginning 4))
@@ -225,7 +216,7 @@
 
               ;; Handle remainder and check for partial sequence
               (let ((remainder (substring string start)))
-                (if (string-match "\033" remainder)
+                (if (string-match "\e" remainder)
                     (let ((esc-idx (match-beginning 0)))
                       (comint-9term-insert-and-overwrite (substring remainder 0 esc-idx))
                       (setq comint-9term-partial-seq (substring remainder esc-idx)))
