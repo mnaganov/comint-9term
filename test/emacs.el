@@ -85,7 +85,13 @@
 (defun my-run-test-compile (test-file output-file)
   "Runs test-file via compile, handles input, saves output."
   (interactive)
-  (compile test-file t)
+  (let ((display-buffer-overriding-action
+         (if (string-match "window-height" test-file)
+             '(display-buffer-same-window . nil)
+           nil)))
+    (compile test-file t))
+  (when (string-match "window-height" test-file)
+    (sit-for 0.5))
   (let* ((buf (get-buffer "*compilation*")))
     (if (not buf)
         nil
