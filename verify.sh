@@ -23,7 +23,7 @@ ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
 SIMPLE_TESTS=("ansi-seq" "password-test" "ssh-output")
 # Tests that require screen execution to generate a golden master for comparison
-SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70" "build" "compile")
+SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70" "build" "compile" "window-height")
 # All tests combined
 ALL_TESTS=("${SIMPLE_TESTS[@]}" "${SCREEN_TESTS[@]}")
 
@@ -90,7 +90,7 @@ verify_screen_gen() {
         # 1. Extract dimensions from the Emacs output
         # Format in file: LINES=20:COLUMNS=80
         local stty_conf
-        stty_conf=$(sed -nE 's/.*LINES=([0-9]+):COLUMNS=([0-9]+).*/rows \1 cols \2/p' "$out_file")
+        stty_conf=$(sed -nE 's/.*(LINES|ROWS)=([0-9]+):(COLUMNS|COLS)=([0-9]+).*/rows \2 cols \4/p' "$out_file")
 
         if [ -z "$stty_conf" ]; then
             echo "FAILURE: Could not extract dimensions from $out_file"

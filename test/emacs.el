@@ -70,8 +70,9 @@
   (interactive)
   (let* ((buf-name "*my-test-shell*")
          (buf (get-buffer-create buf-name)))
-    (pop-to-buffer buf)
+    (switch-to-buffer buf)
     (shell buf)
+    (sit-for 0.5)
     (let ((proc (get-buffer-process buf)))
       (set-process-query-on-exit-flag proc nil)
       (accept-process-output proc 0.5)
@@ -132,6 +133,9 @@
   (unwind-protect
       (when (and script
                  (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt"))
+        (when (string= script "window-height")
+          (split-window-below)
+          (shrink-window 10))
         (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
         (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))
     (progn
