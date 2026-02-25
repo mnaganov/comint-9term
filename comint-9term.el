@@ -6,6 +6,7 @@
 (defvar-local comint-9term-saved-pos nil)
 (defvar-local comint-9term-scroll-bottom nil)
 (defvar-local comint-9term-lines-below-scroll 0)
+(defvar-local comint-9term-scroll-offset 0)
 (defvar-local comint-9term-virtual-col nil)
 (defvar-local comint-9term-partial-seq "")
 (defvar-local comint-9term-height-override nil)
@@ -39,7 +40,9 @@
          (max-h (comint-9term-max-height))
          (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
          (origin (or comint-9term-origin 1)))
-    (max (1- origin) (if (> total effective-h) (- total effective-h) 0))))
+    (max (1- origin)
+         comint-9term-scroll-offset
+         (if (> total effective-h) (- total effective-h) 0))))
 
 (defun comint-9term-pad-to-virtual-col ()
   "Insert spaces if virtual column is set, filling the gap."
@@ -137,7 +140,10 @@
                               (current (line-number-at-pos)))
                          (>= (- current start) comint-9term-scroll-bottom)))))
             (if should-scroll
-                (progn (end-of-line) (insert "\n"))
+                (progn
+                  (end-of-line)
+                  (insert "\n")
+                  (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
               (let ((lines-left (forward-line 1)))
                 (if (> lines-left 0)
                     (insert "\n")
@@ -236,6 +242,7 @@
   (make-local-variable 'comint-9term-saved-pos)
   (make-local-variable 'comint-9term-scroll-bottom)
   (make-local-variable 'comint-9term-lines-below-scroll)
+  (make-local-variable 'comint-9term-scroll-offset)
   (make-local-variable 'comint-9term-virtual-col)
   (make-local-variable 'comint-9term-partial-seq)
   (make-local-variable 'comint-9term-height-override)
