@@ -1,0 +1,84 @@
+-*- mode: compilation; default-directory: "~/code/master/" -*-
+Comint started at Tue Feb 24 19:01:46
+
+tput lines && . build/envsetup.sh && lunch tokay-trunk_staging-userdebug && . build/make/rbesetup.sh && SOONG_GEN_COMPDB=1 SOONG_LINK_COMPDB_TO=$ANDROID_BUILD_TOP SOONG_INCREMENTAL_ANALYSIS=true m
+12
+ignoring XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX, not in /usr/local/google/home/mnaganov/code/master/vendor/google/build/allowed-vendorsetup_sh-files
+including vendor/google/build/vendorsetup.sh
+Edit logs in the source tree are collected automatically, see go/edit_monitor_data_collect_policy for details and opt out instructions.
+including vendor/google/misc/metrics_uploader_prebuilt/vendorsetup.sh
+including vendor/google/tools/atest/vendorsetup.sh
+including vendor/google/tools/vendorsetup.sh
+including vendor/unbundled_google/tools/gemini-utils/vendorsetup.sh
+
+============================================
+PLATFORM_VERSION_CODENAME=Baklava
+PLATFORM_VERSION=Baklava
+TARGET_PRODUCT=tokay
+TARGET_BUILD_VARIANT=userdebug
+TARGET_ARCH=arm64
+TARGET_ARCH_VARIANT=armv8-7a
+TARGET_CPU_VARIANT=cortex-a55
+HOST_OS=linux
+HOST_OS_EXTRA=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+HOST_CROSS_OS=windows
+BUILD_ID=MAIN
+OUT_DIR=out
+SOONG_PARTIAL_COMPILE=true
+SOONG_NINJA=siso
+USE_RBE=true
+USE_REWRAPPER=true
+SOONG_ONLY=true
+SOONG_INCREMENTAL_ANALYSIS=false
+============================================
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Wondering whether to use user, userdebug or eng?
+
+  user        The builds that ship to users. Reduced debugability.
+  userdebug   High fidelity to user builds but with some debugging options
+              enabled. Best suited for performance testing or day-to-day use
+              with debugging enabled.
+  eng         More debugging options enabled and faster build times, but
+              runtime performance tradeoffs. Best suited for day-to-day
+              local development when not doing performance testing.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ignoring XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX, not in /usr/local/google/home/mnaganov/code/master/vendor/google/build/allowed-vendorsetup_sh-files
+including vendor/google/build/vendorsetup.sh
+Edit logs in the source tree are collected automatically, see go/edit_monitor_data_collect_policy for details and opt out instructions.
+including vendor/google/misc/metrics_uploader_prebuilt/vendorsetup.sh
+including vendor/google/tools/atest/vendorsetup.sh
+including vendor/google/tools/vendorsetup.sh
+[ 50% 1/2] analyzing Android.bp files and generating ninja file at out/soong/build.tokay.ninja
+RBE Stats: down 0 B, up 0 B, 
+
+#### failed to build some targets (22 seconds) ####
+
+
+PLATFORM_VERSION_CODENAME=Baklava
+PLATFORM_VERSION=Baklava
+TARGET_PRODUCT=tokay
+TARGET_BUILD_VARIANT=userdebug
+TARGET_ARCH=arm64
+TARGET_ARCH_VARIANT=armv8-7a
+TARGET_CPU_VARIANT=cortex-a55
+HOST_OS=linux
+HOST_OS_EXTRA=Linux-6.16.12-1rodete2-amd64-x86_64-Debian-GNU/Linux-rodete
+HOST_CROSS_OS=windows
+BUILD_ID=MAIN
+OUT_DIR=out
+SOONG_PARTIAL_COMPILE=true
+SOONG_NINJA=siso
+USE_RBE=true
+USE_REWRAPPER=true
+SOONG_ONLY=true
+SOONG_INCREMENTAL_ANALYSIS=true
+============================================
+[  0% 0/1] bootstrap blueprint
+19:02:18 Got signal: interrupt
+19:02:18 cipd: unexpected EOF, process exited with <nil>
+19:02:19 soong bootstrap failed with: exit status 130
+19:02:19 failed to clean up cipd proxy socket XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.
+
+Comint exited abnormally with code 1 at Tue Feb 24 19:02:19, duration 33.3 s
