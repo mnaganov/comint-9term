@@ -35,10 +35,11 @@
             (error 24))))))
 
 (defun comint-9term-start-line ()
-  (let ((total (line-number-at-pos (point-max)))
-        (height (comint-9term-max-height))
-        (origin (or comint-9term-origin 1)))
-    (max (1- origin) (if (> total height) (- total height) 0))))
+  (let* ((total (line-number-at-pos (point-max)))
+         (max-h (comint-9term-max-height))
+         (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
+         (origin (or comint-9term-origin 1)))
+    (max (1- origin) (if (> total effective-h) (- total effective-h) 0))))
 
 (defun comint-9term-pad-to-virtual-col ()
   "Insert spaces if virtual column is set, filling the gap."
@@ -112,10 +113,13 @@
          ((= n 2) (delete-region beg end)))))
      ((eq char ?r) ; DECSTBM - Set Scrolling Region
       (let ((bottom (nth 1 params)))
-        (when (and bottom (> n 0))
-          (setq bottom (min bottom max-h))
-          (setq comint-9term-scroll-bottom bottom)
-          (setq comint-9term-lines-below-scroll 1)))))))
+        (if (and bottom (> n 0))
+            (progn
+              (setq bottom (min bottom max-h))
+              (setq comint-9term-scroll-bottom bottom)
+              (setq comint-9term-lines-below-scroll 1))
+          (setq comint-9term-scroll-bottom nil)
+          (setq comint-9term-lines-below-scroll 0)))))))
 
 (defun comint-9term-insert-and-overwrite (text)
   "Insert TEXT at process-mark."

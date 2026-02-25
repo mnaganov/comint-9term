@@ -77,6 +77,9 @@
     (when (string-match "trace-test" test-file)
       (comint-9term-trace-mode 1))
 
+    (when (string-match "build-2-repro" test-file)
+      (setenv "LINES" "12"))
+
     (let ((proc (get-buffer-process buf)))
       (set-process-query-on-exit-flag proc nil)
       (accept-process-output proc 0.5)
@@ -104,7 +107,9 @@
             (write-region (mark) (point) "out/trace-replay.txt"))
           (kill-buffer replay-buf)))
 
-      (kill-buffer buf))))
+      (kill-buffer buf)
+      (when (string-match "build-2-repro" test-file)
+        (setenv "LINES" nil)))))
 
 (defun my-run-test-compile (test-file output-file)
   "Runs test-file via compile, handles input, saves output."
@@ -122,8 +127,12 @@
       (let ((proc (get-buffer-process buf)))
         (with-current-buffer buf
           (when proc (set-process-query-on-exit-flag proc nil))
+          (when (string-match "build-2-repro" test-file)
+            (setenv "LINES" "12"))
           (my-wait-for-completion proc output-file)
-          (kill-buffer buf))))))
+          (kill-buffer buf)
+          (when (string-match "build-2-repro" test-file)
+            (setenv "LINES" nil)))))))
 
 (defun load-script-and-log-errors (script-file log-file)
   (interactive "fScript to load: \nFLog file: ")

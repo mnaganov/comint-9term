@@ -1,0 +1,24 @@
+12
+ignoring X...
+including...
+Line 1 of big block
+Line 2 of big block
+Line 3 of big block
+Line 4 of big block
+Line 5 of big block
+Line 6 of big block
+Line 7 of big block
+Line 8 of big block
+Line 9 of big block
+Line 10 of big block
+Line 11 of big block
+Line 12 of big block
+Line 13 of big block
+Line 14 of big block
+Line 15 of big block
+Line 16 of big block
+Line 17 of big block
+Line 18 of big block
+Line 19 of big block
+Line 20 of big block
+[ 50% 1/2] analyzing...
