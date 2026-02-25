@@ -1,0 +1,4 @@
+=== Trace Test Suite ===
+Line 1
+Red Text
+=== Test Suite Complete ===

@@ -251,5 +251,57 @@
                           (remq 'ansi-color-process-output comint-output-filter-functions)))
             nil t))
 
+;; Trace mode
+
+(defvar comint-9term-trace-buffer nil
+  "Buffer to store trace logs.")
+
+(defun comint-9term-trace-filter (string)
+  "Log STRING to trace buffer if active."
+  (when (buffer-live-p comint-9term-trace-buffer)
+    (with-current-buffer comint-9term-trace-buffer
+      (goto-char (point-max))
+      (insert (format ";; Chunk len=%d\n" (length string)))
+      (prin1 string (current-buffer))
+      (insert "\n")))
+  string)
+
+(define-minor-mode comint-9term-trace-mode
+  "Toggle tracing of comint output."
+  :global nil
+  (if comint-9term-trace-mode
+      (progn
+        (unless (buffer-live-p comint-9term-trace-buffer)
+          (setq comint-9term-trace-buffer (get-buffer-create "*comint-9term-trace*"))
+          (with-current-buffer comint-9term-trace-buffer
+            (erase-buffer)
+            (emacs-lisp-mode)
+            (insert (format ";; Trace started at %s\n" (current-time-string)))
+            (let ((h (or comint-9term-term-height (frame-height))))
+               (insert (format "(setq comint-9term-height-override %S)\n" h)))
+            (insert (format "(setq width %S)\n" (window-width)))))
+        (add-hook 'comint-preoutput-filter-functions 'comint-9term-trace-filter nil t))
+    (remove-hook 'comint-preoutput-filter-functions 'comint-9term-trace-filter t)))
+
+(defun comint-9term-replay-trace (file)
+  "Replay trace from FILE into current buffer."
+  (let ((proc (start-process "trace-replay" (current-buffer) "cat")))
+    (set-process-query-on-exit-flag proc nil)
+    (let ((trace-data (with-temp-buffer
+                        (insert-file-contents file)
+                        (buffer-string))))
+      (with-temp-buffer
+        (insert trace-data)
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let ((sexp (condition-case nil
+                          (read (current-buffer))
+                        (end-of-file nil))))
+            (when sexp
+              (with-current-buffer (process-buffer proc)
+                (if (stringp sexp)
+                    (comint-9term-filter sexp)
+                  (eval sexp))))))))))
+
 (add-hook 'comint-mode-hook 'comint-9term-setup)
 (add-hook 'compilation-shell-minor-mode-hook 'comint-9term-setup)

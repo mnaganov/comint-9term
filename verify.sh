@@ -21,7 +21,7 @@ trap restore_terminal EXIT
 # Configuration
 ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
-SIMPLE_TESTS=("ansi-seq" "password-test" "ssh-output")
+SIMPLE_TESTS=("ansi-seq" "password-test" "ssh-output" "trace-test")
 # Tests that require screen execution to generate a golden master for comparison
 SCREEN_TESTS=("apt-prog" "apt-prog-0" "apt-prog-30" "apt-prog-70" "build" "compile" "window-height")
 # All tests combined
@@ -149,6 +149,16 @@ done
 for test in "${SIMPLE_TESTS[@]}"; do
     verify_simple "$test"
 done
+
+# Verify trace replay if applicable
+if [ -f "out/trace-replay.txt" ]; then
+    echo "Verifying trace replay..."
+    git diff --no-index "out/trace-test-out-shell.txt" "out/trace-replay.txt"
+    if [ $? -ne 0 ]; then
+        echo "FAILURE: Trace replay mismatch"
+        EXIT_CODE=1
+    fi
+fi
 
 # 4. Run Screen Verifications (Generate Golden)
 # 4a. Launch Screen sessions

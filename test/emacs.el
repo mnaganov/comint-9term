@@ -73,6 +73,10 @@
     (switch-to-buffer buf)
     (shell buf)
     (sit-for 0.5)
+
+    (when (string-match "trace-test" test-file)
+      (comint-9term-trace-mode 1))
+
     (let ((proc (get-buffer-process buf)))
       (set-process-query-on-exit-flag proc nil)
       (accept-process-output proc 0.5)
@@ -80,6 +84,26 @@
       (insert test-file)
       (comint-send-input)
       (my-wait-for-completion proc output-file)
+
+      (when (string-match "trace-test" test-file)
+        (with-current-buffer (get-buffer "*comint-9term-trace*")
+          (write-region (point-min) (point-max) "out/trace-log.el"))
+
+        (let ((replay-buf (get-buffer-create "*replay*")))
+          (with-current-buffer replay-buf
+            (comint-mode)
+            (comint-9term-setup)
+            (comint-9term-replay-trace "out/trace-log.el")
+            (goto-char (point-min))
+            (search-forward "===")
+            (goto-char (match-beginning 0))
+            (push-mark (point) nil t)
+            (goto-char (point-max))
+            (search-backward "===")
+            (forward-line 1)
+            (write-region (mark) (point) "out/trace-replay.txt"))
+          (kill-buffer replay-buf)))
+
       (kill-buffer buf))))
 
 (defun my-run-test-compile (test-file output-file)
