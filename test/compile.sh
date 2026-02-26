@@ -21,7 +21,10 @@ for i in $(seq 1 3); do
     printf "\033[$((STATUS_START+5));1H\033[K"
 
     # Log
-    printf "\033[${SCROLL_BOTTOM};1H"
+    # Trigger partial sequence parsing by splitting the escape sequence
+    printf "\033"
+    sleep 0.2
+    printf "[${SCROLL_BOTTOM};1H"
     echo "file_$i.cpp: In function 'void test$i()':"
     echo "file_$i.cpp:42: warning: unused variable 'x' [-Wunused-variable]"
 done

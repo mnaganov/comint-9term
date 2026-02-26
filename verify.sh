@@ -160,6 +160,19 @@ if [ -f "out/trace-replay.txt" ]; then
     fi
 fi
 
+# Verify partial sequence logic was engaged
+for mode in shell compile; do
+    if [ -f "out/compile-trace-${mode}.el" ]; then
+        echo "Verifying partial sequence logic in compile ($mode)..."
+        if ! grep -q "PARTIAL_SEQ_SAVED" "out/compile-trace-${mode}.el"; then
+            echo "FAILURE: Partial sequence logic was NOT triggered in compile.sh ($mode)"
+            EXIT_CODE=1
+        else
+            echo "SUCCESS: Partial sequence logic triggered in compile.sh ($mode)"
+        fi
+    fi
+done
+
 # 4. Run Screen Verifications (Generate Golden)
 # 4a. Launch Screen sessions
 for test in "${SCREEN_TESTS[@]}"; do

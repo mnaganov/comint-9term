@@ -187,6 +187,10 @@
 
                           ;; Prepend any partial sequence from previous run
                           (when (and comint-9term-partial-seq (> (length comint-9term-partial-seq) 0))
+                            (when (buffer-live-p comint-9term-trace-buffer)
+                              (with-current-buffer comint-9term-trace-buffer
+                                (goto-char (point-max))
+                                (insert ";; PARTIAL_SEQ_ENGAGED\n")))
                             (setq string (concat comint-9term-partial-seq string))
                             (setq comint-9term-partial-seq ""))
 
@@ -231,7 +235,11 @@
                             (if (string-match "\e" remainder)
                                 (let ((esc-idx (match-beginning 0)))
                                   (comint-9term-insert-and-overwrite (substring remainder 0 esc-idx))
-                                  (setq comint-9term-partial-seq (substring remainder esc-idx)))
+                                  (setq comint-9term-partial-seq (substring remainder esc-idx))
+                                  (when (buffer-live-p comint-9term-trace-buffer)
+                                    (with-current-buffer comint-9term-trace-buffer
+                                      (goto-char (point-max))
+                                      (insert ";; PARTIAL_SEQ_SAVED\n"))))
                               (comint-9term-insert-and-overwrite remainder)
                               (setq comint-9term-partial-seq "")))
 
