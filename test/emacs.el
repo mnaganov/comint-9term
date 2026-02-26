@@ -162,6 +162,36 @@
 
 (setq command-error-function #'log-command-errors-to-file)
 
+(defun my-run-shell-reexec-test ()
+  "Tests shell-mode re-execution of commands."
+  (let* ((buf-name "*my-test-shell*")
+         (buf (get-buffer-create buf-name)))
+    (switch-to-buffer buf)
+    (shell buf)
+    (sit-for 0.5)
+    (let ((proc (get-buffer-process buf)))
+      (set-process-query-on-exit-flag proc nil)
+      (goto-char (point-max))
+      (insert "echo aaa")
+      (comint-send-input)
+      (accept-process-output proc 1.0)
+      (goto-char (point-max))
+      (insert "echo bbb")
+      (comint-send-input)
+      (accept-process-output proc 1.0)
+      
+      ;; Clear buffer up to the prompt for testing output easily? No, let's keep it.
+      ;; Now find the FIRST "echo aaa" line
+      (goto-char (point-min))
+      (search-forward "echo aaa")
+      ;; Grab input
+      (let ((input (funcall comint-get-old-input)))
+        (with-temp-file "out/shell-reexec-out-shell.txt"
+          (insert input "\n")))
+      (with-temp-file "out/shell-reexec-out-compile.txt"
+        (insert "echo aaa\n"))
+      (kill-buffer buf))))
+
 (make-directory "out" t)
 
 (let* ((script-file (expand-file-name "out/current-script"))
@@ -172,11 +202,14 @@
   (unwind-protect
       (when (and script
                  (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt"))
-        (when (string= script "window-height")
-          (split-window-below)
-          (shrink-window 10))
-        (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
-        (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))
+        (if (string= script "shell-reexec")
+            (my-run-shell-reexec-test)
+          (progn
+            (when (string= script "window-height")
+              (split-window-below)
+              (shrink-window 10))
+            (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
+            (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))))
     (progn
       (when script
         (with-current-buffer "*Messages*"
