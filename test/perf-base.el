@@ -1,0 +1,8 @@
+(setq inhibit-splash-screen t)
+(require 'compile)
+(require 'ansi-color)
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(defun my-compilation-finish (buffer desc)
+  (kill-emacs))
+(add-hook 'compilation-finish-functions 'my-compilation-finish)
+(compile "test/perf.py" t)
