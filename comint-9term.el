@@ -1,4 +1,4 @@
-;;; comint-9term.el --- Advanced ANSI escape sequences for comint-mode
+;;; comint-9term.el --- Advanced ANSI escape sequences for comint-mode -*- lexical-binding: t -*-
 
 ;; Restriction: do not add `(require 'ansi-color)`
 ;; Restriction: do not add `(provide 'comint-9term)`
