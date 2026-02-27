@@ -31,3 +31,5 @@ Your goal is to extend Emacs `comint-mode` to support advanced ANSI escape seque
 1.  **Diagnose:** Use `verify.sh` to identify regressions. Check `out/*-out-*.txt` vs `out/*-golden.txt`.
 2.  **Implement:** Edit `comint-9term.el`. Maintain Parinfer-compatible Lisp style.
 3.  **Verify:** Run `./verify.sh`. Ensure ALL tests pass (no regressions).
+4.  **Benchmark:** Run `./run-perf.sh` to ensure performance remains within target.
+    *   **Mandate:** Execute `./verify.sh` and `./run-perf.sh` as **separate** tool calls (different `run_shell_command` invocations). Do NOT chain them with `&&` or `;` as this bypasses granular user confirmation for potentially long-running or system-modifying operations.
