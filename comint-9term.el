@@ -139,19 +139,17 @@
             (cond
              ((eq c ?\n)
               (setq comint-9term-virtual-col nil)
-              (let* ((s-line (comint-9term-start-line))
-                     (current (line-number-at-pos)))
-                (if (and (> comint-9term-lines-below-scroll 0)
-                         (>= (- current s-line) comint-9term-scroll-bottom))
-                    (progn
-                      (end-of-line)
+              (if (and (> comint-9term-lines-below-scroll 0)
+                       (>= (- (line-number-at-pos) (comint-9term-start-line)) comint-9term-scroll-bottom))
+                  (progn
+                    (end-of-line)
+                    (insert "\n")
+                    (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
+                (let ((lines-left (forward-line 1)))
+                  (if (> lines-left 0)
                       (insert "\n")
-                      (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
-                  (let ((lines-left (forward-line 1)))
-                    (if (> lines-left 0)
-                        (insert "\n")
-                      (if (and (eobp) (not (eq (char-before) ?\n)))
-                          (insert "\n"))))))
+                    (if (and (eobp) (not (eq (char-before) ?\n)))
+                        (insert "\n")))))
               (set-marker pm (point)))
              ((eq c ?\r)
               (setq comint-9term-virtual-col nil)
@@ -202,6 +200,8 @@
               ;; Initialize origin if needed
               (unless comint-9term-origin
                 (setq comint-9term-origin (1- (line-number-at-pos (process-mark proc)))))
+                
+              (line-number-at-pos (point-max)) ; Trigger pending signals (e.g. SIGWINCH) once per chunk
 
               ;; Prepend any partial sequence from previous run
               (when (and comint-9term-partial-seq (> (length comint-9term-partial-seq) 0))
