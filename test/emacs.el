@@ -2,7 +2,6 @@
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tooltip-mode) (tooltip-mode -1))
-(require 'ansi-color)
 
 (defvar my-password-sent nil)
 
@@ -144,22 +143,6 @@
           (when (string-match "build-2-repro" test-file)
             (setenv "LINES" nil)))))))
 
-(defun load-script-and-log-errors (script-file log-file)
-  (interactive "fScript to load: \nFLog file: ")
-  (condition-case err
-      (progn
-        (load script-file nil nil t)
-        (message "Successfully loaded: %s" script-file)
-        t)
-    (error
-     (let* ((timestamp (format-time-string "[%Y-%m-%d %H:%M:%S]"))
-            (err-string (error-message-string err))
-            (log-message (format "%s Error loading '%s': %s\n"
-                                 timestamp script-file err-string)))
-       (write-region log-message nil log-file 'append)
-       (message "Failed to load '%s'. Error written to '%s'." script-file log-file)
-       nil))))
-
 (defun log-command-errors-to-file (data context caller)
   (let* ((log-file "out/elisp-errors.txt")
          (timestamp (format-time-string "[%Y-%m-%d %H:%M:%S]"))
@@ -211,7 +194,20 @@
                    (string-trim (buffer-string))))))
   (unwind-protect
       (when (and script
-                 (load-script-and-log-errors (concat default-directory "comint-9term.el") "out/elisp-errors.txt"))
+                 (progn
+                   (add-to-list 'load-path default-directory)
+                   (condition-case err
+                       (progn
+                         (require 'comint-9term)
+                         t)
+                     (error
+                      (let* ((timestamp (format-time-string "[%Y-%m-%d %H:%M:%S]"))
+                             (err-string (error-message-string err))
+                             (log-message (format "%s Error requiring 'comint-9term': %s\n"
+                                                  timestamp err-string)))
+                        (write-region log-message nil "out/elisp-errors.txt" 'append)
+                        (message "Failed to require 'comint-9term'. Error written to out/elisp-errors.txt.")
+                        nil)))))
         (if (string= script "shell-reexec")
             (my-run-shell-reexec-test)
           (progn
