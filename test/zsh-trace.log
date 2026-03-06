@@ -1,0 +1,19 @@
+;; Trace started at Thu Mar  5 20:55:31 2026
+(setq comint-9term-height-override 69)
+(setq width 126)
+;; Chunk len=107
+"                                                                                               [?2004l
+"
+;; Chunk len=127
+"%                                                                                                                            "
+;; Chunk len=39
+"Jmikha@Mikhails-Laptop ~ % K[?2004h"
+;; Chunk len=123
+"eecho aaa                                                                                          K
+K    [?2004l
+"
+;; Chunk len=131
+"aaa
+%                                                                                                                            "
+;; Chunk len=39
+"Jmikha@Mikhails-Laptop ~ % K[?2004h"
