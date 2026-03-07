@@ -1,7 +1,0 @@
-^[Jmikha@Mikhails-Laptop ~ % ^[K                                                                                             \
-  ^[Jmikha@Mikhails-Laptop ~ % ^[K                                                                                           \
-    echo aaa%                                                                                                                \
-            ^[Jmikha@Mikhails-Laptop ~ % ^[K                                                                                 \
-              ^[Jmikha@Mikhails-Laptop ~ % ^[K                                                                               \
-                echo aaa%                                                                                                    \
-

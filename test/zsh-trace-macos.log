@@ -1,0 +1,25 @@
+;; Trace started at Fri Mar  6 21:44:44 2026
+(setq comint-9term-height-override 54)
+(setq width 140)
+;; Chunk len=141
+"%                                                                                                                                          "
+;; Chunk len=39
+"Jmikha@Mikhails-Laptop ~ % K[?2004h"
+;; Chunk len=139
+"eecho $TERM                                                                                                      K
+K      [?2004l
+"
+;; Chunk len=146
+"vt50
+%                                                                                                                                          "
+;; Chunk len=39
+"Jmikha@Mikhails-Laptop ~ % K[?2004h"
+;; Chunk len=141
+"eecho $PROMPT                                                                                                    K
+K        [?2004l
+"
+;; Chunk len=155
+"%n@%m %1~ %# 
+%                                                                                                                                          "
+;; Chunk len=39
+"Jmikha@Mikhails-Laptop ~ % K[?2004h"

@@ -1,9 +1,0 @@
-;; Trace started at Fri Mar  6 19:42:04 2026
-(setq comint-9term-height-override 32)
-(setq width 126)
-;; Chunk len=128
-"%                                                                                                                             "
-;; Chunk len=39
-"Jmikha@Mikhails-Laptop ~ % K[?2004h"
-;; Chunk len=30
-"Jmikha@Mikhails-Laptop ~ % "

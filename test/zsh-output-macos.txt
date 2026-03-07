@@ -1,0 +1,9 @@
+Jmikha@Mikhails-Laptop ~ % Kecho $TERM                                                                                                            
+echo $TERM                                                                                                      K
+     
+vt50
+Jmikha@Mikhails-Laptop ~ % Kecho $PROMPT                                                                                                            
+echo $PROMPT                                                                                                    K
+       
+%n@%m %1~ %# 
+Jmikha@Mikhails-Laptop ~ % K                                                                                                           
