@@ -11,15 +11,21 @@ Your goal is to extend Emacs `comint-mode` to support advanced ANSI escape seque
     *   **Window Sizing:** We hook `window-adjust-process-window-size-function` via `add-function` to capture the *actual* window dimensions calculated by Emacs. This allows `comint-9term` to interpret absolute positioning sequences (`CUP`) correctly even in split windows, solving the "frame vs window" height mismatch.
 4.  **Robustness:**
     *   **Partial Sequences:** We strip and buffer incomplete escape sequences at the end of a chunk (`comint-9term-partial-seq`) to handle split packets safely.
-    *   **OSC Handling:** We support Operating System Commands (OSC) terminated by both `BEL` (`\a`) and `ST` (`\e\`).
+    *   **OSC Handling:** We support Operating System Commands (OSC) terminated by both `BEL` (`\a`) and `ST` (`\e\`). Sequences are explicitly inserted and passed to `ansi-osc-apply-on-region` (Emacs 30+) or `comint-osc-process-output` (Emacs 29) to enable Hyperlinks and Directory Tracking.
+
+# Key Knowledge & Recent Insights
+*   **Monotonic Viewport & Cursor Jumps:** Tools like `ninja` use a 1-line scroll margin (`\e[1;1r`) pinned to the top for status bars. When resetting to full-screen scrolling (`\e[r`) and moving to `\e[1;1H`, the layout heuristic must not snap the viewport back to the top of the buffer. Making `comint-9term-start-line` monotonically non-decreasing (via `comint-9term--max-start-line`, clamped to `point-max`) fixes cursor jump bugs by keeping the viewport pinned to its furthest downward progress.
+*   **Zsh & macOS Compatibility:** macOS Zsh pads lines with literal spaces when `TERM=vt50` because the macOS terminfo database lacks the `el` (ce) and `ed` (cd) capabilities. Prefer using Emacs-level configuration (`comint-terminfo-terminal`) over system-level terminfo patching for portability.
+*   **Erase Sequences:** `comint-9term-control-seq-regexp` captures `([78JK])` to properly catch ZLE's short `\eJ` (Erase Display) and `\eK` (Erase Line) sequences.
 
 # Operational Constraints
 1.  **Environment:** Headless Debian console (`-nw`). No graphical frames. Read-only access to `emacs-source/`.
 2.  **Tooling:**
     *   `verify.sh`: The master verification script. It runs Emacs tests and `screen` (to generate golden masters) and diffs the output.
-    *   `test/*.sh`: Test scripts. `window-height.sh` is crucial for verifying viewport logic. `build.sh`/`compile.sh` are dynamic tests simulating build logs.
+    *   `test/*.sh`: Test scripts. `window-height.sh` is crucial for verifying viewport logic.
 3.  **Verification:** strictly follow "Golden Loop".
-    *   **Dynamic Tests:** For `apt-prog`, `build`, `compile`, `window-height`, we generate a "golden" file on the fly using GNU Screen with the same dimensions as the Emacs window.
+    *   **SCREEN_TESTS:** Tests generating exact terminal output (e.g., `apt-prog`, `build`, `compile`, `window-height`, `zsh-prompt`). We generate a "golden" file on the fly using GNU Screen with the same dimensions as the Emacs window.
+    *   **SIMPLE_TESTS:** Tests validating infinite scrollback behavior vs physical screen overwrites (e.g., `build-status`, where `SCREEN_TESTS` would overwrite rows and fail to test scrollback layout).
     *   **Static Tests:** For `ansi-seq`, `password-test`, `ssh-output`, we compare against static `.txt` files.
 
 # Implementation Details
@@ -31,5 +37,5 @@ Your goal is to extend Emacs `comint-mode` to support advanced ANSI escape seque
 1.  **Diagnose:** Use `verify.sh` to identify regressions. Check `out/*-out-*.txt` vs `out/*-golden.txt`.
 2.  **Implement:** Edit `comint-9term.el`. Maintain Parinfer-compatible Lisp style.
 3.  **Verify:** Run `./verify.sh`. Ensure ALL tests pass (no regressions).
-4.  **Benchmark:** Run `./run-perf.sh` to ensure performance remains within target.
+4.  **Benchmark:** Run `./run-perf.sh` to ensure performance remains within target (ratio <= 2.50).
     *   **Mandate:** Execute `./verify.sh` and `./run-perf.sh` as **separate** tool calls (different `run_shell_command` invocations). Do NOT chain them with `&&` or `;` as this bypasses granular user confirmation for potentially long-running or system-modifying operations.
