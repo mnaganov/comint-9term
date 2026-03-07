@@ -1,0 +1,23 @@
+;; Trace started at Fri Mar  6 21:42:59 2026
+(setq comint-9term-height-override 54)
+(setq width 140)
+;; Chunk len=27
+"[?2004hmnaganov@debian:~$ "
+;; Chunk len=103
+"[?2004l
+[?2004hmnaganov@debian:~$ [?2004l
+[?2004hmnaganov@debian:~$ [?2004l
+mnaganov@debian:~$ "
+;; Chunk len=5
+"exit
+"
+;; Chunk len=199
+"%                                                                                                                                           Jmnaganov@debian ~ % K[?2004hJmnaganov@debian ~ % "
+;; Chunk len=202
+"eecho $TERM[?2004l
+vt50
+%                                                                                                                                          Jmnaganov@debian ~ % K[?2004h"
+;; Chunk len=213
+"eecho $PROMPT[?2004l
+%n@%m %1~ %# 
+%                                                                                                                                          Jmnaganov@debian ~ % K[?2004h"
