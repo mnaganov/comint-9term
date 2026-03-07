@@ -1,3 +1,0 @@
-=== Test Suite ===
-mikha@Mikhails-Laptop ~ % echo aaa
-=== Test Suite Complete ===

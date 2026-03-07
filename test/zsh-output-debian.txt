@@ -1,7 +1,0 @@
-mnaganov@debian ~ % echo $TERM
-echo $TERM
-vt50
-mnaganov@debian ~ % echo $PROMPT
-echo $PROMPT
-%n@%m %1~ %# 
-mnaganov@debian ~ % 
