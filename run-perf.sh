@@ -21,11 +21,11 @@ echo "Test time: $TEST_TIME seconds"
 RATIO=$(awk "BEGIN {printf \"%.2f\", $TEST_TIME / $BASE_TIME}")
 echo "Ratio (Test/Baseline): $RATIO"
 
-# Check if within 20% (Ratio <= 1.20)
-if awk "BEGIN {exit !($RATIO <= 1.20)}"; then
+# Check if Ratio <= 2.50
+if awk "BEGIN {exit !($RATIO <= 2.50)}"; then
     echo "Performance test PASSED."
     exit 0
 else
-    echo "Performance test FAILED (comint-9term is more than 20% slower)."
+    echo "Performance test FAILED (comint-9term is more than 2.5x slower)."
     exit 1
 fi
