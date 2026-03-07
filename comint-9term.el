@@ -38,14 +38,22 @@
               (frame-height)
             (error 24))))))
 
+(defvar-local comint-9term--max-start-line nil)
+
 (defun comint-9term-start-line ()
   (let* ((total (line-number-at-pos (point-max)))
          (max-h (comint-9term-max-height))
          (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
-         (origin (or comint-9term-origin 1)))
-    (max (1- origin)
-         comint-9term-scroll-offset
-         (if (> total effective-h) (- total effective-h) 0))))
+         (origin (or comint-9term-origin 1))
+         (computed (max (1- origin)
+                        comint-9term-scroll-offset
+                        (if (> total effective-h) (- total effective-h) 0))))
+    (unless comint-9term--max-start-line
+      (setq comint-9term--max-start-line computed))
+    (setq comint-9term--max-start-line
+          (min (max comint-9term--max-start-line computed)
+               total))
+    comint-9term--max-start-line))
 
 (defun comint-9term-pad-to-virtual-col ()
   "Insert spaces if virtual column is set, filling the gap."

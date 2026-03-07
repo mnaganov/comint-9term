@@ -1,0 +1,8 @@
+=== Android Build Status Test Suite ===
+Line 1: Starting build
+Line 2: Setting up environment
+ninja: Build Succeeded: 3 steps
+Info: Build successful
+Line 3: Packaging
+Line 4: Done
+=== Test Suite Complete ===
