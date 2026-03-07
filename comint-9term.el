@@ -247,7 +247,16 @@
                           (setq comint-9term-saved-pos m)))
                        ((eq esc-char ?8) (when comint-9term-saved-pos (goto-char comint-9term-saved-pos)))
                        ((eq esc-char ?J) (comint-9term-handle-csi ?J '(0)))
-                       ((eq esc-char ?K) (comint-9term-handle-csi ?K '(0)))))))
+                       ((eq esc-char ?K) (comint-9term-handle-csi ?K '(0))))))
+                   (t ;; OSC sequence
+                    (let ((start-p (point)))
+                      (insert (match-string 0 string))
+                      (cond
+                       ((fboundp 'ansi-osc-apply-on-region)
+                        (ansi-osc-apply-on-region start-p (point)))
+                       ((fboundp 'comint-osc-process-output)
+                        (let ((comint-last-output-start (1+ start-p)))
+                          (comint-osc-process-output nil)))))))
                   (setq min-p (min min-p (point)))
                   (setq max-p (max max-p (point)))
                   (set-marker (process-mark proc) (point))
