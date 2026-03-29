@@ -1,5 +1,34 @@
 ;;; comint-9term.el --- Advanced ANSI escape sequences for comint-mode -*- lexical-binding: t -*-
 
+;;; Commentary:
+;; comint-9term implements a hybrid terminal emulation model that bridges the gap
+;; between the infinite, line-oriented nature of Emacs buffers and the fixed-grid,
+;; absolute-addressing model of "smart" terminals. By intercepting process output
+;; via `comint-preoutput-filter-functions' and returning an empty string, it
+;; suppresses standard append-only insertion. This allows it to manually manage
+;; the buffer's contents, implementing a virtual viewport at the end of the
+;; buffer where absolute positioning commands (CUP, CHA) and line-internal
+;; movements (\r, \b) are mapped to `forward-line' and `move-to-column' operations.
+;;
+;; The primary tradeoff lies in choosing logical line movement (`forward-line')
+;; over visual screen movement (`vertical-motion'). While this ensures that the
+;; data stream remains searchable and integral regardless of line wrapping, it
+;; means that terminal "rows" are treated as logical units. To handle complex
+;; layouts like status bars and progress meters, the emulator tracks a
+;; monotonically advancing `comint-9term-start-line'. This heuristic ensures
+;; that even when tools reset scroll margins or jump to the "top" of their
+;; viewport, the emulator pins these operations to the current downward progress
+;; of the buffer, preventing cursor jumps and preserving historical scrollback.
+;;
+;; To maintain high performance and compatibility, comint-9term uses a "monotonic
+;; viewport" strategy. It calculates the effective terminal height and ensures
+;; that absolute positioning stays within a sliding window at the buffer's tail.
+;; This approach allows modern, high-intensity CLI tools (like apt or ninja)
+;; to function correctly with their status lines and progress bars, while still
+;; allowing the Emacs user to enjoy the benefits of a full, persistent command
+;; history that standard terminal emulators often discard or hide in a separate
+;; scrollback buffer.
+
 (require 'comint)
 (require 'compile)
 
