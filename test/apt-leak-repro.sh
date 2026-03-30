@@ -6,7 +6,6 @@ export LINES=10
 export COLUMNS=80
 
 echo "=== Apt Install Leak Test Suite ==="
-echo "LINES=$LINES"
 
 # 1. Fill the buffer so we are scrolling.
 for i in {1..15}; do
@@ -18,4 +17,5 @@ for i in {1..15}; do
 done
 
 echo "Done."
+echo "Diagnostics: reported size is LINES=${LINES}:COLUMNS=${COLUMNS}"
 echo "=== Test Suite Complete ==="

@@ -59,13 +59,14 @@
 
 (defun comint-9term-max-height ()
   (or comint-9term-height-override
-      comint-9term-term-height
-      (let ((env-lines (getenv "LINES")))
-        (if env-lines
-            (string-to-number env-lines)
-          (condition-case nil
-              (frame-height)
-            (error 24))))))
+      (let ((h (or comint-9term-term-height
+                   (let ((env-lines (getenv "LINES")))
+                     (if env-lines
+                         (string-to-number env-lines)
+                       (condition-case nil
+                           (frame-height)
+                         (error 24)))))))
+        (if (and h (> h 0)) (max 10 h) 24))))
 
 (defvar-local comint-9term--max-start-line nil)
 
@@ -74,14 +75,16 @@
          (max-h (comint-9term-max-height))
          (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
          (origin (or comint-9term-origin 1))
-         (computed (max (1- origin)
-                        comint-9term-scroll-offset
-                        (if (> total effective-h) (- total effective-h) 0))))
+         (base (max 0 (1- origin)))
+         (computed (max base
+                        (+ base comint-9term-scroll-offset)
+                        (if (> (- total base) effective-h)
+                            (- total effective-h)
+                          base))))
     (unless comint-9term--max-start-line
       (setq comint-9term--max-start-line computed))
     (setq comint-9term--max-start-line
-          (min (max comint-9term--max-start-line computed)
-               total))
+          (max comint-9term--max-start-line computed))
     comint-9term--max-start-line))
 
 (defun comint-9term-pad-to-virtual-col ()
@@ -139,7 +142,12 @@
       (cond
        ((= n 0) (delete-region (point) (point-max)))
        ((= n 1) (delete-region (point-min) (point)))
-       ((= n 2) (delete-region (point-min) (point-max)))))
+       ((= n 2)
+        (let ((beg (or comint-9term-origin (point-min))))
+          (delete-region beg (point-max))
+          (setq comint-9term-scroll-offset 0)
+          (setq comint-9term--max-start-line nil)
+          (goto-char beg)))))
      ((eq char ?K) ; EL - Erase in Line
       (let ((beg (line-beginning-position))
             (end (line-end-position))
@@ -174,22 +182,38 @@
     (when (and proc (> len 0))
       (let ((pm (process-mark proc)))
         (goto-char pm)
+        ;; Initialize origin if needed
+        (unless comint-9term-origin
+          (save-excursion
+            (goto-char pm)
+            (setq comint-9term-origin (line-number-at-pos pm))
+            (unless (bolp)
+              (setq comint-9term-origin (1+ comint-9term-origin)))))
         (while (< idx end)
           (let ((c (aref text idx)))
             (cond
              ((eq c ?\n)
               (setq comint-9term-virtual-col nil)
-              (if (and (> comint-9term-lines-below-scroll 0)
-                       (>= (- (line-number-at-pos) (comint-9term-start-line)) comint-9term-scroll-bottom))
-                  (progn
-                    (end-of-line)
-                    (insert "\n")
-                    (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
-                (let ((lines-left (forward-line 1)))
-                  (if (> lines-left 0)
+              (let* ((max-h (comint-9term-max-height))
+                     (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
+                     (at-v-bottom (>= (- (line-number-at-pos) (comint-9term-start-line)) effective-h)))
+                (if (and (> comint-9term-lines-below-scroll 0)
+                         (>= (- (line-number-at-pos) (comint-9term-start-line)) comint-9term-scroll-bottom))
+                    (progn
+                      (end-of-line)
                       (insert "\n")
-                    (if (and (eobp) (not (eq (char-before) ?\n)))
-                        (insert "\n")))))
+                      (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
+                  (let ((lines-left (forward-line 1)))
+                    (if (> lines-left 0)
+                        (progn
+                          (insert "\n")
+                          (when at-v-bottom
+                            (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset))))
+                      (if (and (eobp) (not (eq (char-before) ?\n)))
+                          (progn
+                            (insert "\n")
+                            (when at-v-bottom
+                              (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))))))))
               (set-marker pm (point)))
              ((eq c ?\r)
               (setq comint-9term-virtual-col nil)
@@ -236,10 +260,6 @@
               ;; Check for LINES= override
               (when (string-match "LINES=\\([0-9]+\\)" string)
                 (setq comint-9term-height-override (string-to-number (match-string 1 string))))
-
-              ;; Initialize origin if needed
-              (unless comint-9term-origin
-                (setq comint-9term-origin (1- (line-number-at-pos (process-mark proc)))))
 
               (sleep-for 0) ; Process signals to prevent massive chunk buffering
 

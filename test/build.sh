@@ -3,7 +3,6 @@
 : ${COLUMNS:=$(tput cols)}
 
 echo "=== Android Build Test Suite ==="
-echo "Diagnostics: reported size is LINES=${LINES}:COLUMNS=${COLUMNS}"
 
 # Calculate scroll region (Top N-6 lines)
 SCROLL_BOTTOM=$((LINES - 6))
@@ -45,4 +44,5 @@ done
 printf "\033[r"
 # Move to bottom
 printf "\033[${LINES};1H"
+echo "Diagnostics: reported size is LINES=${LINES}:COLUMNS=${COLUMNS}"
 echo "=== Test Suite Complete ==="

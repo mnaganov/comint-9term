@@ -3,7 +3,6 @@
 : ${COLUMNS:=$(tput cols)}
 
 echo "=== Compile Test Suite ==="
-echo "Diagnostics: reported size is LINES=${LINES}:COLUMNS=${COLUMNS}"
 
 SCROLL_BOTTOM=$((LINES - 6))
 STATUS_START=$((SCROLL_BOTTOM + 1))
@@ -32,4 +31,5 @@ done
 # Reset
 printf "\033[r"
 printf "\033[${LINES};1H"
+echo "Diagnostics: reported size is LINES=${LINES}:COLUMNS=${COLUMNS}"
 echo "=== Test Suite Complete ==="
