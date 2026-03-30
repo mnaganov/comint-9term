@@ -28,6 +28,38 @@
 ;; allowing the Emacs user to enjoy the benefits of a full, persistent command
 ;; history that standard terminal emulators often discard or hide in a separate
 ;; scrollback buffer.
+;;
+;; The following sequences are handled:
+;;
+;; 1. CSI (Control Sequence Introducer) Sequences
+;; These start with \e[ followed by parameters and a terminating character.
+;;  * Cursor Movement:
+;;      * CUU (A/B/C/D): Cursor Up/Down/Forward/Backward
+;;      * CPL (F): Cursor Previous Line
+;;      * CHA (G): Cursor Horizontal Absolute
+;;      * CUP / HVP (H or f): Cursor Position (Absolute positioning)
+;;  * Erasure:
+;;      * ED (J): Erase in Display (clear screen / below cursor)
+;;      * EL (K): Erase in Line (clear line / to end of line)
+;;  * Viewport / Scrolling:
+;;      * DECSTBM (r): Set Scrolling Region (used by tools like ninja to pin status bars)
+;;  * Styling (SGR - Select Graphic Rendition):
+;;      * SGR (m): Text formatting and colors (delegated to standard Emacs ansi-color-apply-on-region)
+;;
+;; 2. OSC (Operating System Command) Sequences
+;; These start with \e] and are terminated by either a Bell (\a) or a String Terminator (\e\).
+;;  * Instead of parsing these directly, comint-9term matches the entire sequence and delegates it to Emacs' built-in OSC handlers
+;;    (ansi-osc-apply-on-region or comint-osc-process-output). This enables support for advanced terminal features like Directory
+;;    Tracking and Hyperlinks.
+;;
+;; 3. Independent / Standalone Escape Sequences
+;; These start with a simple \e followed immediately by a specific character (no [ bracket).
+;;  * Cursor State:
+;;      * DECSC (\e7): Save Cursor Position
+;;      * DECRC (\e8): Restore Cursor Position
+;;  * Short-form Erasure (ZLE extensions):
+;;      * \eJ: Erase in Display (Z-Shell Line Editor short sequence)
+;;      * \eK: Erase in Line (Z-Shell Line Editor short sequence)
 
 (require 'comint)
 (require 'compile)
