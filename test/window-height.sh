@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# ==============================================================================
+# Use Cases Covered:
+# Verifies absolute positioning against dynamic window heights (`LINES` and `COLUMNS`).
+# It intentionally writes content to specific offsets from the bottom (`H-2` and `H`)
+# to ensure that `comint-9term`'s layout heuristic accurately captures the *actual*
+# window dimensions calculated by Emacs, rather than frame-level defaults.
+# ==============================================================================
 echo "=== Window Height Test Suite ==="
 
 # 1. Get dimensions first

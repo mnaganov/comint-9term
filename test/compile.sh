@@ -1,4 +1,13 @@
 #!/bin/bash
+
+# ==============================================================================
+# Use Cases Covered:
+# This is a strict unit test for partial ANSI escape sequence buffering and chunk
+# boundary handling. It deliberately splits an escape sequence across multiple
+# output chunks (using `sleep`) to prove that `comint-9term` correctly buffers
+# the incomplete sequence and recombines it without dropping data or printing
+# literal escape characters.
+# ==============================================================================
 : ${LINES:=$(tput lines)}
 : ${COLUMNS:=$(tput cols)}
 

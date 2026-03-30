@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# ==============================================================================
+# Use Cases Covered:
+# Simulates tools (like older ninja versions) that pin a 1-line status bar to the
+# top of the viewport (`\e[1;1r`). It tests the "Monotonic Viewport" logic,
+# verifying that jumping back to Row 1 (`\e[1;1H`) after a build finishes does
+# not snap the viewport back to the top of the buffer, preserving history integrity.
+# ==============================================================================
+
 echo "=== Android Build Status Test Suite ==="
 
 # Simulates the ninja build status bar behavior from big-build.log

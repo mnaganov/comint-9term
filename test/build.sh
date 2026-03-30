@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# ==============================================================================
+# Use Cases Covered:
+# This test simulates a complex split-screen build environment (like modern Android
+# builds). It creates a large scrolling region at the top for continuous logs and
+# a fixed status area at the bottom for progress bars. It verifies absolute cursor
+# positioning, explicit scroll region configuration (`\e[1;Nr`), and visual integrity.
+# ==============================================================================
 : ${LINES:=$(tput lines)}
 : ${COLUMNS:=$(tput cols)}
 

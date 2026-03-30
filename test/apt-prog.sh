@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# ==============================================================================
+# Use Cases Covered:
+# Simulates the complex ANSI sequences emitted by `apt` progress bars. This includes
+# save/restore cursor (`\e7`/`\e8`), absolute bottom positioning, and restricted
+# scroll regions (`\e[1;Nr`). It verifies that natural scrolling works correctly
+# while a "protected" progress bar remains pinned to the bottom line of the screen.
+# ==============================================================================
+
 # 1. Setup Environment
 # ------------------------------------------------------------------
 : ${LINES:=$(tput lines)}
