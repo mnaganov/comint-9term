@@ -66,7 +66,7 @@
                        (condition-case nil
                            (frame-height)
                          (error 24)))))))
-        (if (and h (> h 0)) (max 10 h) 24))))
+        (if (and h (> h 0)) h 24))))
 
 (defvar-local comint-9term--max-start-line nil)
 
@@ -173,6 +173,31 @@
           (setq comint-9term-scroll-bottom nil)
           (setq comint-9term-lines-below-scroll 0)))))))
 
+(defun comint-9term--insert-newline-and-scroll ()
+  "Insert a newline and update scroll offset if at the bottom of the viewport."
+  (let* ((max-h (comint-9term-max-height))
+         (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
+         (curr-line (line-number-at-pos))
+         (start-line (comint-9term-start-line))
+         (at-v-bottom (>= (- curr-line start-line) effective-h)))
+    (if (and (> comint-9term-lines-below-scroll 0)
+             (>= (- curr-line start-line) comint-9term-scroll-bottom))
+        (progn
+          (end-of-line)
+          (insert "\n")
+          (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
+      (let ((lines-left (forward-line 1)))
+        (if (> lines-left 0)
+            (progn
+              (insert "\n")
+              (when at-v-bottom
+                (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset))))
+          (if (and (eobp) (not (eq (char-before) ?\n)))
+              (progn
+                (insert "\n")
+                (when at-v-bottom
+                  (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset))))))))))
+
 (defun comint-9term-insert-and-overwrite (text &optional start end)
   "Insert TEXT at process-mark, from START to END."
   (let* ((start (or start 0))
@@ -195,26 +220,7 @@
             (cond
              ((eq c ?\n)
               (setq comint-9term-virtual-col nil)
-              (let* ((max-h (comint-9term-max-height))
-                     (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
-                     (at-v-bottom (>= (- (line-number-at-pos) (comint-9term-start-line)) effective-h)))
-                (if (and (> comint-9term-lines-below-scroll 0)
-                         (>= (- (line-number-at-pos) (comint-9term-start-line)) comint-9term-scroll-bottom))
-                    (progn
-                      (end-of-line)
-                      (insert "\n")
-                      (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))
-                  (let ((lines-left (forward-line 1)))
-                    (if (> lines-left 0)
-                        (progn
-                          (insert "\n")
-                          (when at-v-bottom
-                            (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset))))
-                      (if (and (eobp) (not (eq (char-before) ?\n)))
-                          (progn
-                            (insert "\n")
-                            (when at-v-bottom
-                              (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))))))))
+              (comint-9term--insert-newline-and-scroll)
               (set-marker pm (point)))
              ((eq c ?\r)
               (setq comint-9term-virtual-col nil)

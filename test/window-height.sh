@@ -8,7 +8,7 @@ H=$(tput lines)
 W=$(tput cols)
 
 # 2. Output diagnostics (will scroll off, but grep finds it in file)
-echo "Diagnostics: reported size is ROWS=${H}:COLS=${W}"
+echo "Diagnostics: reported size is LINES=${H}:COLUMNS=${W}"
 
 # 3. Output filler
 for i in $(seq 1 50); do
