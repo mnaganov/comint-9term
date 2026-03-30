@@ -6,6 +6,7 @@ export LINES=10
 export COLUMNS=80
 
 echo "=== Apt Install Leak Test Suite ==="
+echo "LINES=${LINES}:COLUMNS=${COLUMNS}"
 
 # 1. Fill the buffer so we are scrolling.
 for i in {1..15}; do
