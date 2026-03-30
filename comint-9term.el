@@ -165,8 +165,9 @@
             (insert (make-string (- target beg) ?\s))))
          ((= n 2) (delete-region beg end)))))
      ((eq char ?r) ; DECSTBM - Set Scrolling Region
-      (let ((bottom (nth 1 params)))
-        (if (and bottom (> n 0))
+      (let ((top (max 1 n))
+            (bottom (nth 1 params)))
+        (if (and bottom (> top 0))
             (progn
               (setq bottom (min bottom max-h))
               (setq comint-9term-scroll-bottom bottom)
