@@ -44,7 +44,6 @@
 (defvar-local comint-9term-height-override nil)
 (defvar-local comint-9term-origin nil)
 (defvar-local comint-9term-term-height nil)
-(defvar-local comint-9term-line-has-tail nil)
 
 (defconst comint-9term-control-seq-regexp
   "\e\\(\\[\\([?0-9;]*\\)\\([A-Za-z]\\)\\|]\\(?:.*?\\)\\(?:\a\\|\e\\\\\\)\\|\\([78JK]\\)\\)"
@@ -60,15 +59,14 @@
 
 (defun comint-9term-max-height ()
   (or comint-9term-height-override
-      (if (and comint-9term-term-height (> comint-9term-term-height 0))
-          comint-9term-term-height
-        (let ((h (let ((env-lines (getenv "LINES")))
-                   (if env-lines
-                       (string-to-number env-lines)
-                     (condition-case nil
-                         (frame-height)
-                       (error 24))))))
-          (if (and h (> h 0)) (max 10 h) 24)))))
+      (let ((h (or comint-9term-term-height
+                   (let ((env-lines (getenv "LINES")))
+                     (if env-lines
+                         (string-to-number env-lines)
+                       (condition-case nil
+                           (frame-height)
+                         (error 24)))))))
+        (if (and h (> h 0)) (max 10 h) 24))))
 
 (defvar-local comint-9term--max-start-line nil)
 
@@ -199,7 +197,6 @@
               (setq comint-9term-virtual-col nil)
               (let* ((max-h (comint-9term-max-height))
                      (effective-h (if (eq comint-9term-scroll-bottom 1) 1 max-h))
-                     (old-col (current-column))
                      (at-v-bottom (>= (- (line-number-at-pos) (comint-9term-start-line)) effective-h)))
                 (if (and (> comint-9term-lines-below-scroll 0)
                          (>= (- (line-number-at-pos) (comint-9term-start-line)) comint-9term-scroll-bottom))
@@ -217,14 +214,7 @@
                           (progn
                             (insert "\n")
                             (when at-v-bottom
-                              (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset))))))))
-                ;; Erase progress-bar tail if a partial overwrite left trailing content
-                (when (and comint-9term-line-has-tail (> old-col 0))
-                  (save-excursion
-                    (forward-line -1)
-                    (move-to-column old-col)
-                    (delete-region (point) (line-end-position))))
-                (setq comint-9term-line-has-tail nil))
+                              (setq comint-9term-scroll-offset (1+ comint-9term-scroll-offset)))))))))
               (set-marker pm (point)))
              ((eq c ?\r)
               (setq comint-9term-virtual-col nil)
@@ -251,14 +241,11 @@
         (p (point)))
     (let ((end-of-line (line-end-position)))
       (if (>= p end-of-line)
-          (progn
-            (insert chunk)
-            (setq comint-9term-line-has-tail nil))
-        ;; Overwrite: delete existing characters up to the chunk length or EOL.
-        (let ((tail-after (> (- end-of-line p) len)))
-          (delete-region p (+ p (min len (- end-of-line p))))
           (insert chunk)
-          (setq comint-9term-line-has-tail tail-after))))))
+        ;; Overwrite: delete existing characters up to the chunk length or EOL.
+        (let ((to-delete (min len (- end-of-line p))))
+          (delete-region p (+ p to-delete))
+          (insert chunk))))))
 
 (defun comint-9term-filter (string)
   (condition-case err
