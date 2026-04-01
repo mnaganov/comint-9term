@@ -39,14 +39,18 @@ BAR_WIDTH=$(( $COLUMNS - 22 ))
 
 # 2. Define Progress Function
 # ------------------------------------------------------------------
+# Pre-calculate full bar strings for speed
+FULL_BAR_CHAR=$(printf "%0.s#" $(seq 1 $COLUMNS))
+FULL_DOT_CHAR=$(printf "%0.s." $(seq 1 $COLUMNS))
+
 update_progress() {
     local percent=$1
     local filled=$(($percent * $BAR_WIDTH / 100))
     local empty=$(($BAR_WIDTH - $filled))
 
-    # Create visual bar strings
-    local bar_filled=$(printf "%0.s#" $(seq 1 $filled))
-    local bar_empty=$(printf "%0.s." $(seq 1 $empty))
+    # Create visual bar strings - MUCH FASTER than seq
+    local bar_filled="${FULL_BAR_CHAR:0:$filled}"
+    local bar_empty="${FULL_DOT_CHAR:0:$empty}"
 
     # Pad percentage number
     local pct_pad=""
