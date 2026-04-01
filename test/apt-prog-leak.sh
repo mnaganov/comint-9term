@@ -9,4 +9,4 @@
 # ==============================================================================
 export LINES=10
 export COLUMNS=80
-$(dirname "$0")/apt-prog.sh
+$(dirname "$0")/apt-prog-impl.sh
