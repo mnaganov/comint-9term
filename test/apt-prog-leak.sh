@@ -9,4 +9,13 @@
 # ==============================================================================
 export LINES=10
 export COLUMNS=80
+
+echo "=== Apt Progress Bar Test Suite ==="
+echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
+printf "\033[8;${LINES};${COLUMNS}t"
+echo ""
+
 $(dirname "$0")/apt-prog-impl.sh
+
+echo "=== Test Suite Complete ==="
+echo ""

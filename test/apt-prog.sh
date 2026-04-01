@@ -9,5 +9,19 @@
 #
 # Then, allows the bar to run to completion and get erased from the screen.
 # ==============================================================================
+: ${LINES:=$(tput lines)}
+: ${COLUMNS:=$(tput cols)}
+export LINES
+export COLUMNS
+
+echo "=== Apt Progress Bar Test Suite ==="
+echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
+printf "\033[8;${LINES};${COLUMNS}t"
+echo ""
+
 $(dirname "$0")/apt-prog-impl.sh 30
 $(dirname "$0")/apt-prog-impl.sh
+
+echo "=== Test Suite Complete ==="
+# Ensure cursor is at the start of a new line
+echo ""

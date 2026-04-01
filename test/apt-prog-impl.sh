@@ -13,12 +13,6 @@
 : ${LINES:=$(tput lines)}
 : ${COLUMNS:=$(tput cols)}
 
-
-echo "=== Apt Progress Bar Test Suite ==="
-echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
-printf "\033[8;${LINES};${COLUMNS}t"
-echo ""
-
 # Parse argument (Default 101)
 STOP_AT=${1:-101}
 
@@ -137,6 +131,3 @@ else
 fi
 
 # We exit cleanly. The prompt will appear where the bar used to be (or just above it).
-echo "=== Test Suite Complete ==="
-# Ensure cursor is at the start of a new line
-echo ""
