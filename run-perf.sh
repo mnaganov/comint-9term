@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Warm-up runs to populate caches and compile elisp
+echo "Running warm-up (baseline)..."
+emacs -nw -q -l test/perf-base.el
+echo "Running warm-up (comint-9term)..."
+emacs -nw -q -l test/perf-9term.el
+
 # Run baseline
 echo "Running baseline (compile + ansi-color)..."
 BASE_START=$(date +%s.%N)
