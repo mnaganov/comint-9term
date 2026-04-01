@@ -125,6 +125,11 @@ echo "ABC then back 3, write XXX, forward 3, write END:"
 echo -e "ABC\033[3DXXX\033[3CEND"
 echo ""
 
+# Test 20: URL OSC Sequence
+echo "--- Test 20: URL OSC Sequence ---"
+echo -e "See \033]8;;http://example.com\033\\http://example.com\033]8;;\033\\ for a reference."
+echo ""
+
 echo "=== Test Suite Complete ==="
 # Ensure cursor is at the start of a new line
 echo ""
