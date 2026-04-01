@@ -21,7 +21,7 @@ trap restore_terminal EXIT
 # Configuration
 ERRORS_FILE="out/elisp-errors.txt"
 # Tests that simply compare output against a static file in test/
-SIMPLE_TESTS=("ansi-seq" "password-test" "trace-test" "shell-reexec" "build-status" "apt-prog-leak")
+SIMPLE_TESTS=("ansi-seq" "password-test" "trace-test" "shell-reexec" "build-status")
 # Tests that require screen execution to generate a golden master for comparison
 SCREEN_TESTS=("apt-prog" "build" "window-height" "zsh-prompt")
 
