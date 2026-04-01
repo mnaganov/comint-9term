@@ -19,7 +19,7 @@ echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
 printf "\033[8;${LINES};${COLUMNS}t"
 echo ""
 
-$(dirname "$0")/apt-prog-impl.sh 30
+$(dirname "$0")/apt-prog-impl.sh --stop-at 30
 $(dirname "$0")/apt-prog-impl.sh
 
 echo "=== Test Suite Complete ==="

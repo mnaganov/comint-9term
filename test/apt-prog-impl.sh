@@ -13,8 +13,22 @@
 : ${LINES:=$(tput lines)}
 : ${COLUMNS:=$(tput cols)}
 
-# Parse argument (Default 101)
-STOP_AT=${1:-101}
+# Parse arguments
+STOP_AT=101
+NUM_MESSAGES=8
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --stop-at) STOP_AT="$2"; shift ;;
+        --messages) NUM_MESSAGES="$2"; shift ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+if [ "$NUM_MESSAGES" -lt 1 ]; then
+    NUM_MESSAGES=1
+fi
 
 # Calculate the scroll region boundary (Everything except the last line)
 # If LINES=78, SCROLL_BOTTOM=77
@@ -69,51 +83,26 @@ printf "\n\n\0337\033[1;${SCROLL_BOTTOM}r\0338\033[1A"
 # The cursor is now safely inside the scroll region.
 # Text will scroll nicely without touching the bar at the bottom.
 WIPE_BAR=0
-while true; do
-    printf "Preparing to unpack .../mc-data_3%%3a4.8.29-2_all.deb ...\n"
-    update_progress 0
-    [ "$STOP_AT" -eq 0 ] && break
-    # sleep 0.5
 
-    printf "Unpacking mc-data (3:4.8.29-2) ...\n"
-    update_progress 10
-    [ "$STOP_AT" -le 10 ] && break
-    # sleep 0.5
+for (( i=1; i<=NUM_MESSAGES; i++ )); do
+    printf "Status message %d...\n" "$i"
 
-    printf "Preparing to unpack .../mc_3%%3a4.8.29-2_arm64.deb ...\n"
-    update_progress 20
-    [ "$STOP_AT" -le 20 ] && break
-    # sleep 0.5
+    if [ "$NUM_MESSAGES" -eq 1 ]; then
+        percent=100
+    else
+        percent=$(( (i - 1) * 100 / (NUM_MESSAGES - 1) ))
+    fi
 
-    printf "Unpacking mc (3:4.8.29-2) ...\n"
-    update_progress 40
-    [ "$STOP_AT" -le 40 ] && break
-    # sleep 0.5
+    update_progress "$percent"
 
-    printf "Selecting previously unselected package unzip...\n"
-    update_progress 50
-    [ "$STOP_AT" -le 50 ] && break
-    # sleep 0.5
-
-    printf "Setting up unzip (6.0-28) ...\n"
-    update_progress 70
-    [ "$STOP_AT" -le 70 ] && break
-    # sleep 0.5
-
-    printf "Processing triggers for mailcap (3.70+nmu1) ...\n"
-    update_progress 90
-    [ "$STOP_AT" -le 90 ] && break
-    # sleep 0.5
-
-    printf "Processing triggers for man-db (2.11.2-2) ...\n"
-    update_progress 100
-    [ "$STOP_AT" -le 100 ] && break
-    # sleep 0.5
-
-    # End the loop
-    WIPE_BAR=1
-    break
+    if [ "$STOP_AT" -le "$percent" ]; then
+        break
+    fi
 done
+
+if [ "$STOP_AT" -gt "$percent" ]; then
+    WIPE_BAR=1
+fi
 
 # 5. Cleanup Sequence (From Dump offset 0000201c)
 # ------------------------------------------------------------------
