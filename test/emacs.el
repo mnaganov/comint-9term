@@ -74,7 +74,7 @@
     (sit-for 0.5)
 
     (when (or (string-match "trace-test" test-file)
-              (string-match "compile.sh" test-file))
+              (string-match "build.sh" test-file))
       (comint-9term-trace-mode 1))
 
     (when (string-match "build-2-repro" test-file)
@@ -88,9 +88,9 @@
       (comint-send-input)
       (my-wait-for-completion proc output-file)
 
-      (when (string-match "compile.sh" test-file)
+      (when (string-match "build.sh" test-file)
         (with-current-buffer (get-buffer "*comint-9term-trace*")
-          (write-region (point-min) (point-max) "out/compile-trace-shell.el")))
+          (write-region (point-min) (point-max) "out/build-trace-shell.el")))
 
       (when (string-match "trace-test" test-file)
         (with-current-buffer (get-buffer "*comint-9term-trace*")
@@ -130,15 +130,15 @@
         nil
       (let ((proc (get-buffer-process buf)))
         (with-current-buffer buf
-          (when (string-match "compile.sh" test-file)
+          (when (string-match "build.sh" test-file)
             (comint-9term-trace-mode 1))
           (when proc (set-process-query-on-exit-flag proc nil))
           (when (string-match "build-2-repro" test-file)
             (setenv "LINES" "12"))
           (my-wait-for-completion proc output-file)
-          (when (string-match "compile.sh" test-file)
+          (when (string-match "build.sh" test-file)
             (with-current-buffer (get-buffer "*comint-9term-trace*")
-              (write-region (point-min) (point-max) "out/compile-trace-compile.el")))
+              (write-region (point-min) (point-max) "out/build-trace-compile.el")))
           (kill-buffer buf)
           (when (string-match "build-2-repro" test-file)
             (setenv "LINES" nil)))))))
