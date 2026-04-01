@@ -45,6 +45,9 @@
 ;;      * DECSTBM (r): Set Scrolling Region (used by tools like ninja to pin status bars)
 ;;  * Styling (SGR - Select Graphic Rendition):
 ;;      * SGR (m): Text formatting and colors (delegated to standard Emacs ansi-color-apply-on-region)
+;;  * Window / Metadata:
+;;      * Window Manipulation (t): Used by CSI 8;h;wt to set terminal height (mapped to `comint-9term-height-override`)
+;;      * Magic String: Supporting `9TERM_SET_HEIGHT=n` as a human-readable alternative for viewport sizing.
 ;;
 ;; 2. OSC (Operating System Command) Sequences
 ;; These start with \e] and are terminated by either a Bell (\a) or a String Terminator (\e\).
@@ -203,7 +206,12 @@
               (setq comint-9term-scroll-bottom bottom)
               (setq comint-9term-lines-below-scroll 1))
           (setq comint-9term-scroll-bottom nil)
-          (setq comint-9term-lines-below-scroll 0)))))))
+          (setq comint-9term-lines-below-scroll 0))))
+     ((eq char ?t) ; Window manipulation
+      (when (= n 8)
+        (let ((h (nth 1 params)))
+          (when (and h (> h 0))
+            (setq comint-9term-height-override h))))))))
 
 (defun comint-9term--insert-newline-and-scroll ()
   "Insert a newline and update scroll offset if at the bottom of the viewport."
@@ -296,8 +304,8 @@
                   (start 0)
                   (min-p (marker-position (process-mark proc)))
                   (max-p (marker-position (process-mark proc))))
-              ;; Check for LINES= override
-              (when (string-match "LINES=\\([0-9]+\\)" string)
+              ;; Check for height override
+              (when (string-match "9TERM_SET_HEIGHT=\\([0-9]+\\)" string)
                 (setq comint-9term-height-override (string-to-number (match-string 1 string))))
 
               (sleep-for 0) ; Process signals to prevent massive chunk buffering

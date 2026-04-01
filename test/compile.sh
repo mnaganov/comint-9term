@@ -40,5 +40,6 @@ done
 # Reset
 printf "\033[r"
 printf "\033[${LINES};1H"
-echo "Diagnostics: reported size is LINES=${LINES}:COLUMNS=${COLUMNS}"
+echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
+printf "\033[8;${LINES};${COLUMNS}t"
 echo "=== Test Suite Complete ==="

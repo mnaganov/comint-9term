@@ -88,10 +88,10 @@ verify_screen_gen() {
         local out_file="out/${test_name}-out-${mode}.txt"
         local golden_file="out/${test_name}-out-${mode}-golden.txt"
 
-        # 1. Extract dimensions from the Emacs output
-        # Format in file: LINES=20:COLUMNS=80
+        # Extract dimensions from the Emacs output
+        # Format in file: SCREEN_DIMS: LINES=20:COLUMNS=80
         local stty_conf
-        stty_conf=$(sed -nE 's/.*(LINES|ROWS)=([0-9]+):(COLUMNS|COLS)=([0-9]+).*/rows \2 cols \4/p' "$out_file")
+        stty_conf=$(sed -nE 's/.*SCREEN_DIMS: LINES=([0-9]+):COLUMNS=([0-9]+).*/rows \1 cols \2/p' "$out_file")
 
         if [ -z "$stty_conf" ]; then
             echo "FAILURE: Could not extract dimensions from $out_file"

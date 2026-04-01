@@ -15,7 +15,8 @@
 
 
 echo "=== Apt Progress Bar Test Suite ==="
-echo "LINES=${LINES}:COLUMNS=${COLUMNS}"
+echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
+printf "\033[8;${LINES};${COLUMNS}t"
 echo ""
 
 # Parse argument (Default 101)
