@@ -172,7 +172,7 @@
       (insert "echo bbb")
       (comint-send-input)
       (accept-process-output proc 1.0)
-      
+
       ;; Clear buffer up to the prompt for testing output easily? No, let's keep it.
       ;; Now find the FIRST "echo aaa" line
       (goto-char (point-min))
@@ -184,8 +184,6 @@
       (with-temp-file "out/shell-reexec-out-compile.txt"
         (insert "echo aaa\n"))
       (kill-buffer buf))))
-
-(make-directory "out" t)
 
 (let* ((script-file (expand-file-name "out/current-script"))
        (script (when (file-exists-p script-file)

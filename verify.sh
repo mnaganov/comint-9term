@@ -28,7 +28,8 @@ SCREEN_TESTS=("apt-prog" "apt-prog-30" "build" "compile" "window-height" "zsh-pr
 ALL_TESTS=("${SIMPLE_TESTS[@]}" "${SCREEN_TESTS[@]}")
 
 # Cleanup
-rm -f out/*
+rm -rf out
+mkdir -p out
 
 # Global failure tracker
 EXIT_CODE=0
