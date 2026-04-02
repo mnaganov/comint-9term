@@ -1,5 +1,6 @@
 (setq inhibit-splash-screen t)
 (require 'compile)
+(setq compilation-scroll-output t)
 (require 'ansi-color)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 (add-to-list 'load-path default-directory)
@@ -8,4 +9,4 @@
   (kill-emacs))
 (add-hook 'compilation-finish-functions 'my-compilation-finish)
 (add-hook 'compilation-mode-hook 'comint-9term-setup)
-(compile "./test/apt-prog-impl.sh --messages 3000" t)
+(compile "./test/perf-apt-prog.sh" t)
