@@ -17,6 +17,7 @@ export LINES
 export COLUMNS
 
 echo "=== Apt Progress Bar Test Suite ==="
+echo "9TERM_SET_HEIGHT=${LINES}"
 echo "SCREEN_DIMS: LINES=${LINES}:COLUMNS=${COLUMNS}"
 printf "\033[8;${LINES};${COLUMNS}t"
 echo ""

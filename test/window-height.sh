@@ -16,6 +16,7 @@ H=$(tput lines)
 W=$(tput cols)
 
 # 2. Output diagnostics (will scroll off, but grep finds it in file)
+echo "9TERM_SET_HEIGHT=${H}"
 echo "SCREEN_DIMS: LINES=${H}:COLUMNS=${W}"
 
 # 3. Output filler

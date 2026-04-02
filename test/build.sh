@@ -13,6 +13,7 @@
 : ${COLUMNS:=$(tput cols)}
 
 echo "=== Consolidated Build & Compile Test Suite ==="
+echo "9TERM_SET_HEIGHT=${LINES}"
 
 # Calculate scroll region (Top N-6 lines)
 SCROLL_BOTTOM=$((LINES - 6))

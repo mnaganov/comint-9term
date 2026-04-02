@@ -1,4 +1,5 @@
 (setq inhibit-splash-screen t)
+(setq compilation-scroll-output t)
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tooltip-mode) (tooltip-mode -1))
@@ -130,6 +131,8 @@
         nil
       (let ((proc (get-buffer-process buf)))
         (with-current-buffer buf
+          (when (getenv "LINES")
+            (setq-local comint-9term-height-override (string-to-number (getenv "LINES"))))
           (when (string-match "build.sh" test-file)
             (comint-9term-trace-mode 1))
           (when proc (set-process-query-on-exit-flag proc nil))
