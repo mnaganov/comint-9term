@@ -305,7 +305,8 @@
         (if (not proc)
             string
           (with-current-buffer (process-buffer proc)
-            (let* ((inhibit-read-only t)
+            (save-match-data
+              (let* ((inhibit-read-only t)
                    (inhibit-field-text-motion t)
                    (pm (process-mark proc))
                    (true-pm (or comint-9term--true-pm
@@ -397,7 +398,7 @@
                   (when (and (fboundp 'comint--mark-as-output)
                              (not comint-use-prompt-regexp)
                              (< min-p clamped-max))
-                    (comint--mark-as-output min-p clamped-max))))))))
+                    (comint--mark-as-output min-p clamped-max)))))))))
     (error (message "Filter error: %S" err) nil))
   "")
 
