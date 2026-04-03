@@ -44,7 +44,7 @@
 ;;  * Viewport / Scrolling:
 ;;      * DECSTBM (r): Set Scrolling Region (used by tools like ninja to pin status bars)
 ;;  * Styling (SGR - Select Graphic Rendition):
-;;      * SGR (m): Text formatting and colors (delegated to standard Emacs ansi-color-apply-on-region)
+;;      * SGR (m): Text formatting and colors (handled via xterm-color or ansi-color)
 ;;  * Window / Metadata:
 ;;      * Window Manipulation (t): Used by CSI 8;h;wt to set terminal height (mapped to `comint-9term-height-override`)
 ;;      * Magic String: Supporting `9TERM_SET_HEIGHT=n` as a human-readable alternative for viewport sizing.
@@ -65,6 +65,7 @@
 ;;      * \eK: Erase in Line (Z-Shell Line Editor short sequence)
 
 (require 'comint)
+(require 'xterm-color nil t)
 (require 'compile)
 
 (defvar-local comint-9term-trace-buffer nil
@@ -286,18 +287,27 @@
                 (set-marker marker (point))))))
           (setq idx (1+ idx)))))))
 
+(defun comint-9term-colorize-string (string)
+  "Colorize STRING using xterm-color if available, otherwise ansi-color."
+  (if (fboundp 'xterm-color-filter)
+      (xterm-color-filter string)
+    (if (fboundp 'ansi-color-apply)
+        (ansi-color-apply string)
+      string)))
+
 (defun comint-9term-write-chunk (chunk)
   "Write a chunk of normal text, using fast path if possible."
   (comint-9term-pad-to-virtual-col)
-  (let ((len (length chunk))
-        (p (point)))
+  (let* ((colored-chunk (comint-9term-colorize-string chunk))
+         (len (length colored-chunk))
+         (p (point)))
     (let ((end-of-line (line-end-position)))
       (if (>= p end-of-line)
-          (insert chunk)
+          (insert colored-chunk)
         ;; Overwrite: delete existing characters up to the chunk length or EOL.
         (let ((to-delete (min len (- end-of-line p))))
           (delete-region p (+ p to-delete))
-          (insert chunk))))))
+          (insert colored-chunk))))))
 
 (defun comint-9term-filter (string)
   (condition-case err
@@ -351,11 +361,7 @@
                          ((memq char '(?A ?B ?C ?D ?F ?G ?H ?f ?J ?K ?r))
                           (comint-9term-handle-csi char (comint-9term-parse-params params (if (memq char '(?J ?K)) 0 1))))
                          ((eq char ?m)
-                          (let ((start-p (point))
-                                (sgr (match-string 0 string)))
-                            (insert sgr)
-                            (when (fboundp 'ansi-color-apply-on-region)
-                              (ansi-color-apply-on-region start-p (point))))))))
+                          (comint-9term-colorize-string (match-string 0 string))))))
                      (is-sc
                       (let ((esc-char (aref (match-string 4 string) 0)))
                         (cond

@@ -42,7 +42,8 @@ Your goal is to extend Emacs `comint-mode` to support advanced ANSI escape seque
 # Implementation Details
 *   **Regex:** Use `comint-9term-control-seq-regexp` defined with readable `\e` and `\a` escapes.
 *   **Helper Functions:** Use `comint-9term-move-to-column` and `comint-9term-pad-to-virtual-col` to encapsulate cursor movement logic.
-*   **Dependencies:** Do NOT require `ansi-color` explicitly if not needed, but respect its presence in the filter chain.
+*   **Dependencies:** Prefer `xterm-color` for high-performance ANSI and 256-color rendering. Fall back to `ansi-color` if `xterm-color` is unavailable.
+*   **Colorization:** Integrated `xterm-color-filter` (or `ansi-color-apply`) directly into the process filter loop. This avoids the overhead of redundant buffer scans and allows for cleaner state management by colorizing text chunks before insertion and stripping SGR sequences from the buffer.
 
 # Workflow
 1.  **Diagnose:** Use `verify.sh` to identify regressions. Check `out/*-out-*.txt` vs `out/*-golden.txt`.

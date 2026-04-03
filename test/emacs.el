@@ -197,6 +197,7 @@
       (when (and script
                  (progn
                    (add-to-list 'load-path default-directory)
+(add-to-list 'load-path (expand-file-name "test" default-directory))
                    (condition-case err
                        (progn
                          (require 'comint-9term)
