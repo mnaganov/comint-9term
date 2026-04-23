@@ -1,0 +1,1 @@
+SUCCESS: Cursor stayed at point-min

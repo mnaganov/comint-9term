@@ -188,6 +188,48 @@
         (insert "echo aaa\n"))
       (kill-buffer buf))))
 
+(defun my-run-cursor-jump-test ()
+  "Tests if cursor jumps back to output when it shouldn't."
+  (let* ((buf-name "*cursor-jump-shell*")
+         (buf (get-buffer-create buf-name))
+         (output-file "out/cursor-jump-out-shell.txt")
+         (jump-detected nil))
+    (switch-to-buffer buf)
+    (shell buf)
+    (sit-for 0.5)
+    (let ((proc (get-buffer-process buf)))
+      (set-process-query-on-exit-flag proc nil)
+      (goto-char (point-max))
+      (insert "test/cursor-jump.sh")
+      (comint-send-input)
+
+      ;; Wait for initial output
+      (while (not (save-excursion
+                    (goto-char (point-min))
+                    (search-forward "Initial output" nil t)))
+        (accept-process-output proc 0.1))
+
+      ;; Move cursor to beginning of buffer
+      (goto-char (point-min))
+      (let ((initial-point (point)))
+        (message "Cursor moved to point-min: %d" initial-point)
+
+        ;; Wait for more output
+        (while (not (save-excursion
+                      (goto-char (point-min))
+                      (search-forward "Delayed output" nil t)))
+          (accept-process-output proc 0.1)
+          (when (/= (point) initial-point)
+            (setq jump-detected t)
+            (message "JUMP DETECTED! Point moved to %d" (point))))
+
+        (with-temp-file output-file
+          (if jump-detected
+              (insert "FAILURE: Cursor jumped\n")
+            (insert "SUCCESS: Cursor stayed at point-min\n")))
+        (copy-file output-file "out/cursor-jump-out-compile.txt" t))
+      (kill-buffer buf))))
+
 (let* ((script-file (expand-file-name "out/current-script"))
        (script (when (file-exists-p script-file)
                  (with-temp-buffer
@@ -209,14 +251,15 @@
                         (write-region log-message nil "out/elisp-errors.txt" 'append)
                         (message "Failed to require 'comint-9term'. Error written to out/elisp-errors.txt.")
                         nil)))))
-        (if (string= script "shell-reexec")
-            (my-run-shell-reexec-test)
-          (progn
-            (when (string= script "window-height")
-              (split-window-below)
-              (shrink-window 10))
-            (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
-            (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))))
+        (cond
+         ((string= script "shell-reexec") (my-run-shell-reexec-test))
+         ((string= script "cursor-jump") (my-run-cursor-jump-test))
+         (t
+          (when (string= script "window-height")
+            (split-window-below)
+            (shrink-window 10))
+          (my-run-test-in-shell (concat "test/" script ".sh") (concat "out/" script "-out-shell.txt"))
+          (my-run-test-compile  (concat "test/" script ".sh") (concat "out/" script "-out-compile.txt")))))
     (progn
       (when script
         (with-current-buffer "*Messages*"
