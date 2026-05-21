@@ -1,2 +1,4 @@
+*.elc
 emacs-source/
+test/*.elc
 out/

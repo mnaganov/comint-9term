@@ -8,6 +8,7 @@ export APT_MESSAGES=3000
 echo "--------------------------------------------------"
 echo "Running Global Warm-up..."
 echo "--------------------------------------------------"
+emacs -batch -L . -L test -f batch-byte-compile comint-9term.el test/xterm-color.el test/eat.el > /dev/null 2>&1
 emacs -batch -q -l test/perf-warmup-base.el > /dev/null 2>&1
 emacs -batch -q -l test/perf-warmup-9term.el > /dev/null 2>&1
 
