@@ -1,0 +1,6 @@
+=== Zig Tree Test Suite ===
+[done] Compile Build Script
+├─ [100/100] Linking
+└─ [100] Semantic Analysis
+   └─ Io.Writer.print
+=== Test Suite Complete ===
