@@ -332,4 +332,15 @@ and positioned at/after the process mark (i.e. as pending input)."
       (when script
         (with-current-buffer "*Messages*"
           (write-region (point-min) (point-max) (concat "out/" script "-emacs-messages.txt"))))
+      ;; Drain any unread terminal query replies before exiting. Emacs' xterm
+      ;; initialization solicits a Secondary Device Attributes report (\e[>0c)
+      ;; and enables focus reporting (\e[?1004h); capable terminals (e.g.
+      ;; Ghostty) answer with sequences like \e[>1;10;0c and \e[I. Because this
+      ;; harness drives Emacs from elisp (accept-process-output / sit-for)
+      ;; rather than the interactive command loop, those replies are never
+      ;; read and would otherwise sit in the tty input buffer and leak onto the
+      ;; shell after Emacs exits. Reading them here keeps verify.sh output clean.
+      (let ((n 0))
+        (while (and (< n 1000) (read-event nil nil 0.05))
+          (setq n (1+ n))))
       (kill-emacs))))
