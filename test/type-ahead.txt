@@ -1,0 +1,1 @@
+SUCCESS: type-ahead preserved as pending input

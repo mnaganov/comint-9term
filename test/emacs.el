@@ -230,6 +230,73 @@
         (copy-file output-file "out/cursor-jump-out-compile.txt" t))
       (kill-buffer buf))))
 
+(defun my-run-type-ahead-test ()
+  "Tests that characters typed while a command runs become pending input.
+
+In bash and Emacs' own `shell-mode', if the user starts typing while a
+previous non-interactive command is still running, the typed characters
+are preserved and become the input for the prompt that appears after the
+command finishes.  They must end up *after* the command's output, intact,
+and positioned at/after the process mark (i.e. as pending input)."
+  (let* ((buf-name "*type-ahead-shell*")
+         (buf (get-buffer-create buf-name))
+         (output-file "out/type-ahead-out-shell.txt")
+         (result "FAILURE: test did not complete"))
+    (switch-to-buffer buf)
+    (shell buf)
+    (sit-for 0.5)
+    (let ((proc (get-buffer-process buf)))
+      (set-process-query-on-exit-flag proc nil)
+      (accept-process-output proc 0.5)
+      ;; Launch a command that only produces output after a delay.
+      (goto-char (point-max))
+      (insert "sleep 1; echo COMMAND_OUTPUT")
+      (comint-send-input)
+      ;; Simulate the user typing ahead while the command is still running.
+      (sit-for 0.3)
+      (goto-char (point-max))
+      (insert "PENDING_INPUT")
+      ;; Wait for the command output (and the following prompt) to arrive.
+      (let ((deadline (+ (float-time) 6)))
+        (while (and (< (float-time) deadline)
+                    (not (save-excursion
+                           (goto-char (point-min))
+                           (search-forward "COMMAND_OUTPUT" nil t))))
+          (accept-process-output proc 0.2)))
+      (accept-process-output proc 0.3)
+      (sit-for 0.3)
+      ;; Evaluate the resulting buffer state.
+      (let* ((out-pos (save-excursion
+                        (goto-char (point-min))
+                        (when (search-forward "COMMAND_OUTPUT" nil t)
+                          (match-beginning 0))))
+             (pend-positions (save-excursion
+                               (goto-char (point-min))
+                               (let (ps)
+                                 (while (search-forward "PENDING_INPUT" nil t)
+                                   (push (match-beginning 0) ps))
+                                 (nreverse ps))))
+             (pend-pos (car pend-positions))
+             (pm (marker-position (process-mark proc))))
+        (setq result
+              (cond
+               ((null out-pos) "FAILURE: command output missing")
+               ((null pend-pos) "FAILURE: type-ahead lost")
+               ((/= (length pend-positions) 1)
+                (format "FAILURE: type-ahead corrupted (%d copies)"
+                        (length pend-positions)))
+               ((< pend-pos out-pos)
+                "FAILURE: type-ahead appears before command output")
+               ((< pend-pos pm)
+                "FAILURE: type-ahead not preserved as pending input")
+               (t "SUCCESS: type-ahead preserved as pending input"))))
+      (message "Type-ahead result: %s" result)
+      (with-temp-file output-file (insert result "\n"))
+      ;; Compile mode does not accept interactive type-ahead; mirror the
+      ;; shell result so the simple-diff harness is satisfied in both modes.
+      (copy-file output-file "out/type-ahead-out-compile.txt" t)
+      (kill-buffer buf))))
+
 (let* ((script-file (expand-file-name "out/current-script"))
        (script (when (file-exists-p script-file)
                  (with-temp-buffer
@@ -254,6 +321,7 @@
         (cond
          ((string= script "shell-reexec") (my-run-shell-reexec-test))
          ((string= script "cursor-jump") (my-run-cursor-jump-test))
+         ((string= script "type-ahead") (my-run-type-ahead-test))
          (t
           (when (string= script "window-height")
             (split-window-below)
