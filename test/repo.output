@@ -1,0 +1,28 @@
+[06/08|13:48 @mnaganovssd desktop (test)]$ repo upload --cbr --wip --no-verify .
+
+Upload project vendor/google/desktop/ to remote branch main:
+  branch test ( 1 commit, Mon Jun 8 13:48:45 2026 -0700):
+         a4ea6322 Re-implement desktop component disablement using defaults
+to sso://googleplex-android/ (y/N)? y
+You are currently enrolled in Git submodules experiment (go/android-submodules-quickstart).  Use --no-use-superproject to override.
+
+Enumerating objects: 61, done.
+Counting objects: 100% (55/55), done.
+Delta compression using up to 128 threads
+Compressing objects: 100% (23/23), done.
+Writing objects: 100% (24/24), 4.24 KiB | 2.12 MiB/s, done.
+Total 24 (delta 20), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (20/20)           
+remote: Waiting for private key checker: 6/7 objects left        
+remote: Processing changes: refs: 1, new: 1, done            
+remote: 
+remote: SUCCESS        
+remote: 
+remote:   https://googleplex-android-review.xxxxxxxxxxxxxxxxxxx/c/platform/vendor/google/desktop/+/40299857 Re-implement desktop component disablement using defaults [WIP] [NEW]        
+remote: 
+To sso://googleplex-android/platform/vendor/google/desktop
+ * [new reference]       test -> refs/for/main%wip
+
+----------------------------------------------------------------------
+[OK    ] vendor/google/desktop/ test
+[06/08|13:49 @mnaganovssd desktop (test)]$ Counting objects:   3% (2/55)remote: Resolving deltas:   5% (1/20)           remote: remote: Processing changes: (\)        
