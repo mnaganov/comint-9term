@@ -345,6 +345,59 @@ a real subprocess."
     (copy-file output-file "out/repo-progress-out-compile.txt" t)
     (kill-buffer buf)))
 
+(defun my-run-apt-progress-test ()
+  "Tests that a bottom-pinned apt-style progress bar is not leaked as a fragment.
+
+apt draws its bar low on the screen with save-cursor / absolute-position /
+restore-cursor (DECSC, CUP, DECRC). Within one output chunk it draws the bar
+and then writes a log line at an *earlier* buffer position, which shifts the
+bar forward. comint-9term must mark the shifted bar as `field' = output;
+otherwise the type-ahead shield mistakes the bar tail for pending input and
+re-inserts it as a stray fragment line.
+
+The bug is timing-dependent on chunk boundaries (which is why the live
+`apt-prog' screen test misses it), so the script's raw output is replayed at
+deterministic newline-aligned chunk boundaries -- the boundary that puts a
+log line after a freshly drawn bar within the same chunk."
+  (let* ((output-file "out/apt-progress-out-shell.txt")
+         (raw (shell-command-to-string
+               "LINES=24 COLUMNS=120 ./test/apt-prog-impl.sh --messages 40"))
+         (chunks (let ((cs '()) (start 0) (i 0) (n (length raw)))
+                   (while (< i n)
+                     (when (eq (aref raw i) ?\n)
+                       (push (substring raw start (1+ i)) cs)
+                       (setq start (1+ i)))
+                     (setq i (1+ i)))
+                   (when (< start n) (push (substring raw start) cs))
+                   (nreverse cs)))
+         (buf (get-buffer-create "*apt-progress*"))
+         (result "FAILURE: test did not complete"))
+    (with-current-buffer buf
+      (comint-mode)
+      (comint-9term-setup)
+      (setq-local comint-9term-height-override 24)
+      (let ((proc (start-process "apt-progress" buf "cat")))
+        (set-process-query-on-exit-flag proc nil)
+        (goto-char (point-max))
+        (set-marker (process-mark proc) (point))
+        (dolist (c chunks) (comint-9term-filter c))
+        (delete-process proc))
+      ;; A stray bar fragment is a line consisting solely of bar characters and
+      ;; a closing bracket -- the tail of a progress bar grabbed by the shield.
+      ;; Genuine bar lines always carry a "Status message"/"Progress:" prefix.
+      (let ((frags 0))
+        (goto-char (point-min))
+        (while (re-search-forward "^[.#]+\\] *$" nil t)
+          (setq frags (1+ frags)))
+        (setq result
+              (if (> frags 0)
+                  (format "FAILURE: %d stray progress-bar fragment line(s)" frags)
+                "SUCCESS: no progress-bar fragments leaked"))))
+    (with-temp-file output-file (insert result "\n"))
+    (copy-file output-file "out/apt-progress-out-compile.txt" t)
+    (kill-buffer buf)
+    (message "Apt-progress result: %s" result)))
+
 (let* ((script-file (expand-file-name "out/current-script"))
        (script (when (file-exists-p script-file)
                  (with-temp-buffer
@@ -371,6 +424,7 @@ a real subprocess."
          ((string= script "cursor-jump") (my-run-cursor-jump-test))
          ((string= script "type-ahead") (my-run-type-ahead-test))
          ((string= script "repo-progress") (my-run-repo-progress-test))
+         ((string= script "apt-progress") (my-run-apt-progress-test))
          (t
           (when (string= script "window-height")
             (split-window-below)
