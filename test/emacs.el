@@ -297,6 +297,54 @@ and positioned at/after the process mark (i.e. as pending input)."
       (copy-file output-file "out/type-ahead-out-compile.txt" t)
       (kill-buffer buf))))
 
+(defun my-run-repo-progress-test ()
+  "Tests that CR-terminated progress output is not mistaken for type-ahead.
+
+git/`repo' push redraws a status line by ending each update with a carriage
+return, so an output chunk *ends* with CR, leaving the cursor back at the line
+start behind text the chunk just wrote. That text must be marked as `field' =
+output; otherwise the type-ahead shield treats it as pending input, carries it
+forward, and leaks it onto the prompt shown once the command finishes.
+
+The regression depends on exact chunk boundaries (a chunk ending with CR), so
+the chunks are fed to the filter directly rather than relying on the timing of
+a real subprocess."
+  (let* ((buf-name "*repo-progress*")
+         (buf (get-buffer-create buf-name))
+         (output-file "out/repo-progress-out-shell.txt")
+         (result "FAILURE: test did not complete"))
+    (with-current-buffer buf
+      (comint-mode)
+      (comint-9term-setup)
+      (setq-local comint-9term-height-override 24)
+      (let ((proc (start-process "repo-progress" buf "cat")))
+        (set-process-query-on-exit-flag proc nil)
+        (goto-char (point-max))
+        (set-marker (process-mark proc) (point))
+        ;; Prompt, several CR-terminated progress updates (each its own chunk),
+        ;; then a newline-terminated final line and the next prompt.
+        (dolist (chunk '("$ "
+                         "Counting objects: 1/5\r"
+                         "Counting objects: 2/5\r"
+                         "Counting objects: 3/5\r"
+                         "Counting objects: 4/5\r"
+                         "Counting objects: 5/5, done.\n"
+                         "$ "))
+          (comint-9term-filter chunk))
+        ;; Nothing should follow the final prompt: the pending-input region
+        ;; (process mark to point-max) must not contain leaked progress text.
+        (let* ((pm (marker-position (process-mark proc)))
+               (tail (buffer-substring-no-properties pm (point-max))))
+          (setq result
+                (if (string-match-p "Counting objects" tail)
+                    (format "FAILURE: progress leaked as pending input: %S" tail)
+                  "SUCCESS: progress not leaked")))
+        (message "Repo-progress result: %s" result)
+        (delete-process proc)))
+    (with-temp-file output-file (insert result "\n"))
+    (copy-file output-file "out/repo-progress-out-compile.txt" t)
+    (kill-buffer buf)))
+
 (let* ((script-file (expand-file-name "out/current-script"))
        (script (when (file-exists-p script-file)
                  (with-temp-buffer
@@ -322,6 +370,7 @@ and positioned at/after the process mark (i.e. as pending input)."
          ((string= script "shell-reexec") (my-run-shell-reexec-test))
          ((string= script "cursor-jump") (my-run-cursor-jump-test))
          ((string= script "type-ahead") (my-run-type-ahead-test))
+         ((string= script "repo-progress") (my-run-repo-progress-test))
          (t
           (when (string= script "window-height")
             (split-window-below)
